@@ -1,0 +1,37 @@
+# Generic application properties
+
+server:
+  port: 8080
+
+basepath: ""
+
+
+# Set the environment to use
+env: dev
+
+# Production environment properties
+prod:
+  db:
+    host: db.sistadm.us
+    port: 5432
+    dbname: sistadm
+    user: sistadm
+    password: Sist@2023@Adm
+
+# Development environment properties
+dev:
+  db:
+    host: 127.0.0.1
+    port: 5432
+    dbname: sistadm
+    user: postgres
+    password: postgres
+
+# Staging environment properties
+verify:
+  db:
+    host: db.sistadm.us
+    port: 5432
+    dbname: sistadm
+    user: sistadm
+    password: Sist@2023@Adm

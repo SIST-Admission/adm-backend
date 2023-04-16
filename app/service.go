@@ -69,8 +69,12 @@ func loadConfig(configFilePath *string) {
 func loadRoutes(engine *gin.Engine, basePath string) {
 	application := engine.Group(basePath)
 	{
-		application.GET("/ping", func(c *gin.Context) {
-			c.String(http.StatusOK, "pong")
+		application.GET("/", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"server":    "ok",
+				"databases": "ok",
+				"message":   "All services are up and running",
+			})
 		})
 	}
 }

@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -14,7 +16,7 @@ func Auth(c *gin.Context) {
 		c.Abort()
 		return
 	}
-
-	logrus.Debug("Auth: ", cookie)
+	log.Default().Println(cookie)
+	logrus.Info("Auth: ", cookie)
 	c.Next()
 }

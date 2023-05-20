@@ -66,4 +66,6 @@ func AdminAuth(c *gin.Context) {
 		c.Abort()
 		return
 	}
+
+	c.Next()
 }

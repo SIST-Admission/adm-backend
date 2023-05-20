@@ -11,8 +11,10 @@ type ApplicationsService struct{}
 var applicationsService ApplicationsService = ApplicationsService{}
 var applicationValidator validators.ApplicationValidator = validators.ApplicationValidator{}
 
-func (applicationsService *ApplicationsService) SaveBasicDetails(request dto.SaveBasicDetailsRequest) (dto.SaveBasicDetailsResponse, *dto.Error) {
+func (applicationsService *ApplicationsService) SaveBasicDetails(userId int, request dto.SaveBasicDetailsRequest) (dto.SaveBasicDetailsResponse, *dto.Error) {
 	logrus.Info("ApplicationsService.SaveBasicDetails")
+
+	logrus.Info("User: ", userId)
 
 	// Validate request
 	fieldErrors := applicationValidator.ValidateSaveBasicDetailsRequest(&request)

@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"github.com/SIST-Admission/adm-backend/src/models"
 	"github.com/SIST-Admission/adm-backend/src/repositories"
 	"github.com/SIST-Admission/adm-backend/src/utils"
 	"github.com/gin-gonic/gin"
@@ -52,16 +51,18 @@ func Auth(c *gin.Context) {
 	}
 
 	// add user to context
-	c.Set("user", user)
+	c.Set("userId", user.Id)
+	c.Set("email", user.Email)
+	c.Set("role", user.Role)
+	c.Set("isActive", user.IsActive)
 
 	c.Next()
 }
 
 func AdminAuth(c *gin.Context) {
 	logrus.Info("Middleware:AdminAuth")
-	user := c.Keys["user"].(*models.User)
 
-	if user.Role != "ADMIN" {
+	if c.Keys["role"] == nil || c.Keys["role"] != "ADMIN" {
 		logrus.Error("AdminAuth: User Not Admin")
 		c.JSON(401, gin.H{"error": "Unauthorized", "message": "User Not Admin"})
 		c.Abort()

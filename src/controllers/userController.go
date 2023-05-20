@@ -51,13 +51,13 @@ func (userController *UserController) LoginUser(c *gin.Context) {
 	}
 	exp := int(time.Second) * 60 * 60 * 24
 	// set HTTPOnly Secure Cookie
-	c.SetCookie("auth", resp.JwtToken, exp, "/", viper.GetString("server.host"), true, true)
+	c.SetCookie("auth", resp.JwtToken, exp, "/", viper.GetString("server.host"), false, false)
 
 	c.JSON(http.StatusOK, resp)
 }
 
 func (userController *UserController) LogoutUser(c *gin.Context) {
 	logrus.Info("UserController.LogoutUser")
-	c.SetCookie("auth", "", -1, "/", viper.GetString("server.host"), true, true)
+	c.SetCookie("auth", "", -1, "/", viper.GetString("server.host"), false, false)
 	c.JSON(http.StatusOK, gin.H{"message": "Logout Successful"})
 }

@@ -99,7 +99,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 
 		// User Routes "/{basePath}/applications"
 		applications := app.Group("/applications")
-		applications.Use(middlewares.AdminAuth)
+		applications.Use(middlewares.Auth, middlewares.AdminAuth)
 		{
 			applications.POST("/basicDetails", applicationsController.SaveBasicDetails)
 		}

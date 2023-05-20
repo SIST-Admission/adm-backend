@@ -18,7 +18,7 @@ func Auth(c *gin.Context) {
 
 	claims, err := utils.ParseJwt(cookie)
 	if err != nil {
-		logrus.Error("Auth: ", err)
+		logrus.Error("JWT Verification Failed: Auth: ", err)
 		c.JSON(401, gin.H{"error": "Unauthorized"})
 		c.Abort()
 		return

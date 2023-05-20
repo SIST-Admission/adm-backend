@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,5 +26,5 @@ func GenerateJwt(payload map[string]interface{}) (string, error) {
 	}
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
-	return token.SignedString([]byte("secret"))
+	return token.SignedString([]byte(viper.GetString("jwtSecret")))
 }

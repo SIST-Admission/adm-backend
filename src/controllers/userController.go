@@ -8,6 +8,7 @@ import (
 	"github.com/SIST-Admission/adm-backend/src/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type UserController struct{}
@@ -50,13 +51,13 @@ func (userController *UserController) LoginUser(c *gin.Context) {
 	}
 	exp := int(time.Second) * 60 * 60 * 24
 	// set HTTPOnly Secure Cookie
-	c.SetCookie("auth", resp.JwtToken, exp, "/", "localhost", true, true)
+	c.SetCookie("auth", resp.JwtToken, exp, "/", viper.GetString("server.host"), true, true)
 
 	c.JSON(http.StatusOK, resp)
 }
 
 func (userController *UserController) LogoutUser(c *gin.Context) {
 	logrus.Info("UserController.LogoutUser")
-	c.SetCookie("auth", "", -1, "/", "localhost", true, true)
+	c.SetCookie("auth", "", -1, "/", viper.GetString("server.host"), true, true)
 	c.JSON(http.StatusOK, gin.H{"message": "Logout Successful"})
 }

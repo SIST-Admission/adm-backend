@@ -1,10 +1,11 @@
 # Generic application properties
 
 server:
+  host: localhost
   port: 80
 
 basepath: ""
-
+jwtSecret: "HelloSefali@2007"
 
 # Set the environment to use
 env: prod

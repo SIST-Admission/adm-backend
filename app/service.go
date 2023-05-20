@@ -13,6 +13,7 @@ import (
 
 	"github.com/SIST-Admission/adm-backend/src/controllers"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -40,7 +41,9 @@ func startServer(engine *gin.Engine, port string) {
 	}
 
 	go func() {
-		log.Default().Println("Starting server on port", port)
+		logrus.Info("Starting server on port ", port)
+		logrus.Info("Server host ", viper.GetString("server.host"))
+		logrus.Info("Server base path ", viper.GetString("basePath"))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
@@ -54,7 +57,7 @@ func startServer(engine *gin.Engine, port string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Default().Fatalf("Server forced to shutdown: %v", err)
+		logrus.Fatalf("Server forced to shutdown: %v", err)
 	}
 
 	log.Default().Println("Server exiting")

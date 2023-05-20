@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/SIST-Admission/adm-backend/src/controllers"
+	"github.com/SIST-Admission/adm-backend/src/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -78,20 +79,29 @@ func loadConfig(configFilePath *string) {
 func loadRoutes(engine *gin.Engine, basePath string) {
 
 	// Controllers
-	applicationController := controllers.ApplicationController{}
+	applicationsController := controllers.ApplicationsController{}
 	userController := controllers.UserController{}
 
 	// Application Routes "/{basePath}"
-	application := engine.Group(basePath)
+	app := engine.Group(basePath)
 	{
-		application.GET("/ping", applicationController.Ping)
+		app.GET("/", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"message": "SIST Admission Backend"})
+		})
 
 		// User Routes "/{basePath}/users"
-		users := application.Group("/users")
+		users := app.Group("/users")
 		{
 			users.POST("/", userController.RegisterUser)
 			users.POST("/login", userController.LoginUser)
 			users.GET("/logout", userController.LogoutUser)
+		}
+
+		// User Routes "/{basePath}/applications"
+		applications := app.Group("/applications")
+		applications.Use(middlewares.Auth)
+		{
+			applications.POST("/basicDetails", applicationsController.SaveBasicDetails)
 		}
 
 	}

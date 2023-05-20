@@ -2,7 +2,7 @@
 
 server:
   host: localhost
-  port: 80
+  port: 8080
 
 basepath: ""
 jwtSecret: "HelloSefali@2007"

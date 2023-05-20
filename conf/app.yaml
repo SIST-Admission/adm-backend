@@ -1,7 +1,7 @@
 # Generic application properties
 
 server:
-  host: localhost
+  host: backend.sistadm.us
   port: 8080
 
 basepath: ""

@@ -28,3 +28,13 @@ func GenerateJwt(payload map[string]interface{}) (string, error) {
 
 	return token.SignedString([]byte(viper.GetString("jwtSecret")))
 }
+
+func ParseJwt(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(viper.GetString("jwtSecret")), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return token.Claims.(jwt.MapClaims), nil
+}

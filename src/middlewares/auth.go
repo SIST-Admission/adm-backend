@@ -1,8 +1,7 @@
 package middlewares
 
 import (
-	"log"
-
+	"github.com/SIST-Admission/adm-backend/src/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -16,7 +15,15 @@ func Auth(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	log.Default().Println(cookie)
-	logrus.Info("Auth: ", cookie)
+
+	claims, err := utils.ParseJwt(cookie)
+	if err != nil {
+		logrus.Error("Auth: ", err)
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
+
+	logrus.Debug("claims: ", claims)
 	c.Next()
 }

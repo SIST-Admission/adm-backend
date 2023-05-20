@@ -61,6 +61,7 @@ func AdminAuth(c *gin.Context) {
 	logrus.Info("Middleware:AdminAuth")
 	Auth(c)
 	user := c.Keys["user"].(*models.User)
+	logrus.Info("User Role", user.Role)
 	if user.Role != "ADMIN" {
 		c.JSON(401, gin.H{"error": "Unauthorized"})
 		c.Abort()

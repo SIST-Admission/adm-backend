@@ -13,7 +13,7 @@ func Auth(c *gin.Context) {
 	cookie, err := c.Cookie("auth")
 	if err != nil {
 		logrus.Error("Auth: ", err)
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.JSON(401, gin.H{"error": "Unauthorized", "message": "User Not Logged In"})
 		c.Abort()
 		return
 	}
@@ -21,7 +21,7 @@ func Auth(c *gin.Context) {
 	claims, err := utils.ParseJwt(cookie)
 	if err != nil {
 		logrus.Error("Auth: JWT Verification Failed: ", err)
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.JSON(401, gin.H{"error": "Unauthorized", "message": "Invalid Auth Token"})
 		c.Abort()
 		return
 	}
@@ -31,14 +31,14 @@ func Auth(c *gin.Context) {
 	user, err := userRepository.GetUserById(claims["userId"].(string))
 	if err != nil {
 		logrus.Error("Auth: User Not Found", err)
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.JSON(401, gin.H{"error": "Unauthorized", "message": "User Not Found"})
 		c.Abort()
 		return
 	}
 
 	if user == nil {
 		logrus.Error("Auth: User Not Found")
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.JSON(401, gin.H{"error": "Unauthorized", "message": "User Not Found"})
 		c.Abort()
 		return
 	}
@@ -46,7 +46,7 @@ func Auth(c *gin.Context) {
 	// check if user is active
 	if !user.IsActive {
 		logrus.Error("Auth: User Not Active")
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.JSON(401, gin.H{"error": "Unauthorized", "message": "User Not Active"})
 		c.Abort()
 		return
 	}
@@ -60,9 +60,10 @@ func Auth(c *gin.Context) {
 func AdminAuth(c *gin.Context) {
 	logrus.Info("Middleware:AdminAuth")
 	user := c.Keys["user"].(*models.User)
-	logrus.Info("User Role", user.Role)
+
 	if user.Role != "ADMIN" {
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		logrus.Error("AdminAuth: User Not Admin")
+		c.JSON(401, gin.H{"error": "Unauthorized", "message": "User Not Admin"})
 		c.Abort()
 		return
 	}

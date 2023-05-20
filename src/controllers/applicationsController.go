@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/SIST-Admission/adm-backend/src/dto"
+	"github.com/SIST-Admission/adm-backend/src/models"
 	"github.com/SIST-Admission/adm-backend/src/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -21,7 +22,7 @@ func (applicationsController *ApplicationsController) SaveBasicDetails(c *gin.Co
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	logrus.Info("User from Middleware", c.Keys["user"].(*models.User))
 	resp, e := applicationsService.SaveBasicDetails(request)
 	if e != nil {
 		logrus.Error(e.Message)

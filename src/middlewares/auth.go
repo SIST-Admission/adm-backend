@@ -58,6 +58,7 @@ func Auth(c *gin.Context) {
 }
 
 func AdminAuth(c *gin.Context) {
+	logrus.Info("Middleware:AdminAuth")
 	Auth(c)
 	user := c.Keys["user"].(*models.User)
 	if user.Role != "ADMIN" {

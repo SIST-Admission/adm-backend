@@ -101,6 +101,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		applications := app.Group("/applications")
 		applications.Use(middlewares.Auth)
 		{
+			applications.POST("/start", applicationsController.StartApplication)
 			applications.POST("/basicDetails", applicationsController.SaveBasicDetails)
 		}
 

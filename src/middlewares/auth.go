@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"github.com/SIST-Admission/adm-backend/src/models"
+	"github.com/SIST-Admission/adm-backend/src/repositories"
 	"github.com/SIST-Admission/adm-backend/src/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -18,12 +20,49 @@ func Auth(c *gin.Context) {
 
 	claims, err := utils.ParseJwt(cookie)
 	if err != nil {
-		logrus.Error("JWT Verification Failed: Auth: ", err)
+		logrus.Error("Auth: JWT Verification Failed: ", err)
 		c.JSON(401, gin.H{"error": "Unauthorized"})
 		c.Abort()
 		return
 	}
 
-	logrus.Debug("claims: ", claims)
+	// Check user if exists
+	userRepository := repositories.UserRepository{}
+	user, err := userRepository.GetUserById(claims["userId"].(string))
+	if err != nil {
+		logrus.Error("Auth: User Not Found", err)
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
+
+	if user == nil {
+		logrus.Error("Auth: User Not Found")
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
+
+	// check if user is active
+	if !user.IsActive {
+		logrus.Error("Auth: User Not Active")
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
+
+	// add user to context
+	c.Set("user", user)
+
 	c.Next()
+}
+
+func AdminAuth(c *gin.Context) {
+	Auth(c)
+	user := c.Keys["user"].(*models.User)
+	if user.Role != "ADMIN" {
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
 }

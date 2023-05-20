@@ -10,6 +10,7 @@ type User struct {
 	PhoneVerified bool   `gorm:"column:phone_verified" json:"phone_verified"`
 	Role          string `gorm:"column:role" json:"role"`
 	ApplicationId int    `gorm:"column:application_id; default:null" json:"application_id"`
+	IsActive      bool   `gorm:"column:is_active; default:true" json:"is_active"`
 }
 
 func (User) TableName() string {

@@ -29,3 +29,14 @@ func (repo *UserRepository) RegisterUser(payload dto.RegisterUserRequest) (*mode
 
 	return &user, nil
 }
+
+func (repo *UserRepository) GetUserByEmail(email string) (*models.User, error) {
+	logrus.Info("UserRepository.GetUserByEmail")
+	db := db.GetInstance()
+	var user models.User
+	if err := db.Model(models.User{}).Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

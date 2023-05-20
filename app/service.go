@@ -87,6 +87,8 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		users := application.Group("/users")
 		{
 			users.POST("/", userController.RegisterUser)
+			users.POST("/login", userController.LoginUser)
+			users.GET("/logout", userController.LogoutUser)
 		}
 
 	}

@@ -3,6 +3,7 @@ package service
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/SIST-Admission/adm-backend/src/dto"
 	"github.com/SIST-Admission/adm-backend/src/repositories"
@@ -16,6 +17,9 @@ var userRepository repositories.UserRepository = repositories.UserRepository{}
 
 func (userService *UserService) RegisterUser(request dto.RegisterUserRequest) (*dto.RegisterUserResponse, *dto.Error) {
 	logrus.Info("UserService.RegisterUser")
+
+	// Preprocessing
+	request.Email = strings.ToLower(request.Email)
 
 	// Validation
 	var fieldErrors []string
@@ -78,5 +82,55 @@ func (userService *UserService) RegisterUser(request dto.RegisterUserRequest) (*
 		Name:  user.Name,
 		Email: user.Email,
 		Phone: user.Phone,
+	}, nil
+}
+
+func (userService *UserService) LoginUser(request dto.LoginUserRequest) (*dto.LoginUserResponse, *dto.Error) {
+	logrus.Info("userService.LoginUser")
+	request.Email = strings.ToLower(request.Email)
+	// Get user using email.
+	user, err := userRepository.GetUserByEmail(request.Email)
+	if err != nil {
+		logrus.Error("Failed to get User", err)
+		return nil, &dto.Error{
+			Code:    http.StatusForbidden,
+			Message: "Invalid Credentials",
+		}
+	}
+
+	// Validate Password
+	if !utils.CheckPasswordHash(request.Password, user.Password) {
+		logrus.Error("userService.LoginUser: Invalid Password for user: " + request.Email)
+		return nil, &dto.Error{
+			Code:    http.StatusForbidden,
+			Message: "Invalid Credentials",
+		}
+	}
+
+	// Generate JWT
+	token, err := utils.GenerateJwt(map[string]interface{}{
+		"userId": strconv.Itoa(user.Id),
+		"role":   user.Role,
+		"email":  user.Email,
+	})
+
+	if err != nil {
+		logrus.Error("Faild to generate Token", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Faild to Authenticate",
+		}
+	}
+
+	return &dto.LoginUserResponse{
+		Id:            user.Id,
+		Name:          user.Name,
+		Email:         user.Email,
+		Phone:         user.Phone,
+		Role:          user.Role,
+		EmailVerified: user.EmailVerified,
+		PhoneVerified: user.PhoneVerified,
+		ApplicationId: user.ApplicationId,
+		JwtToken:      token,
 	}, nil
 }

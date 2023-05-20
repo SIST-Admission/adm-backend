@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/SIST-Admission/adm-backend/src/dto"
 	"github.com/SIST-Admission/adm-backend/src/service"
@@ -30,4 +31,32 @@ func (userController *UserController) RegisterUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, resp)
+}
+
+func (userController *UserController) LoginUser(c *gin.Context) {
+	logrus.Info("UserController.RegisterUser")
+	var request dto.LoginUserRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, e := userService.LoginUser(request)
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+	exp := int(time.Second) * 60 * 60 * 24
+	// set HTTPOnly Secure Cookie
+	c.SetCookie("auth", resp.JwtToken, exp, "/", "localhost", true, true)
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (userController *UserController) LogoutUser(c *gin.Context) {
+	logrus.Info("UserController.LogoutUser")
+	c.SetCookie("auth", "", -1, "/", "localhost", true, true)
+	c.JSON(http.StatusOK, gin.H{"message": "Logout Successful"})
 }

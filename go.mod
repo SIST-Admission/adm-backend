@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/rs/zerolog v1.29.1
+	github.com/sirupsen/logrus v1.9.2
 	github.com/spf13/viper v1.15.0
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gorm v1.25.0

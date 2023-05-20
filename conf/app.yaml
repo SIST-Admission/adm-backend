@@ -7,16 +7,16 @@ basepath: ""
 
 
 # Set the environment to use
-env: dev
+env: prod
 
 # Production environment properties
 prod:
   db:
-    host: db.sistadm.us
+    host: 157.245.17.155
     port: 5432
     dbname: sistadm
-    user: sistadm
-    password: Sist@2023@Adm
+    user: sistadm_write
+    password: Bhulgaya@2326
 
 # Development environment properties
 dev:

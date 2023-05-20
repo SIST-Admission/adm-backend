@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/SIST-Admission/adm-backend/src/controllers"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -21,6 +22,11 @@ func start() {
 	configFilePath = flag.String("config-path", "conf/", "conf/")
 	flag.Parse()
 	loadConfig(configFilePath)
+
+	// Set Server Mode
+	if viper.GetString("env") == "prod" {
+		// gin.SetMode(gin.ReleaseMode)
+	}
 
 	engine := gin.New()
 	loadRoutes(engine, viper.GetString("server.basePath"))
@@ -67,15 +73,22 @@ func loadConfig(configFilePath *string) {
 }
 
 func loadRoutes(engine *gin.Engine, basePath string) {
+
+	// Controllers
+	applicationController := controllers.ApplicationController{}
+	userController := controllers.UserController{}
+
+	// Application Routes "/{basePath}"
 	application := engine.Group(basePath)
 	{
-		application.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"server":    "ok",
-				"databases": "ok",
-				"message":   "All services are up and running",
-			})
-		})
+		application.GET("/ping", applicationController.Ping)
+
+		// User Routes "/{basePath}/users"
+		users := application.Group("/users")
+		{
+			users.POST("/", userController.RegisterUser)
+		}
+
 	}
 }
 

@@ -85,8 +85,10 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 	// Application Routes "/{basePath}"
 	app := engine.Group(basePath)
 	{
-		app.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"message": "SIST Admission Backend"})
+		app.GET("/", middlewares.Auth, func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "User is authenticated",
+			})
 		})
 
 		// User Routes "/{basePath}/users"
@@ -103,6 +105,13 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		{
 			applications.POST("/start", applicationsController.StartApplication)
 			applications.POST("/basicDetails", applicationsController.SaveBasicDetails)
+		}
+
+		// Documents Routes "/{basePath}/documents"
+		documents := app.Group("/documents")
+		documents.Use(middlewares.Auth)
+		{
+
 		}
 
 	}

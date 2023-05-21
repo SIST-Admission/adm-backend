@@ -94,6 +94,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 				"message": "User is authenticated",
 			})
 		})
+		app.GET("/auth", middlewares.Auth, userController.LoggedInUser)
 
 		// User Routes "/{basePath}/users"
 		users := app.Group("/users")

@@ -134,3 +134,41 @@ func (userService *UserService) LoginUser(request dto.LoginUserRequest) (*dto.Lo
 		JwtToken:      token,
 	}, nil
 }
+
+func (userService *UserService) GetUser(userId int) (*dto.LoginUserResponse, *dto.Error) {
+	logrus.Info("userService.GetUser")
+	user, err := userRepository.GetUserById(strconv.Itoa(userId))
+	if err != nil {
+		logrus.Error("Failed to get User", err)
+		return nil, &dto.Error{
+			Code:    http.StatusUnauthorized,
+			Message: "Invalid Credentials",
+		}
+	}
+
+	token, err := utils.GenerateJwt(map[string]interface{}{
+		"userId": strconv.Itoa(user.Id),
+		"role":   user.Role,
+		"email":  user.Email,
+	})
+
+	if err != nil {
+		logrus.Error("Faild to generate Token", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Faild to Authenticate",
+		}
+	}
+
+	return &dto.LoginUserResponse{
+		Id:            user.Id,
+		Name:          user.Name,
+		Email:         user.Email,
+		Phone:         user.Phone,
+		Role:          user.Role,
+		EmailVerified: user.EmailVerified,
+		PhoneVerified: user.PhoneVerified,
+		ApplicationId: user.ApplicationId,
+		JwtToken:      token,
+	}, nil
+}

@@ -63,3 +63,15 @@ func (userController *UserController) LogoutUser(c *gin.Context) {
 	c.SetCookie("auth", "", -1, "/", cookieHost, false, false)
 	c.JSON(http.StatusOK, gin.H{"message": "Logout Successful"})
 }
+
+func (userController *UserController) LoggedInUser(c *gin.Context) {
+
+	resp, e := userService.GetUser(c.Keys["userId"].(int))
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+
+	c.JSON(http.StatusCreated, resp)
+}

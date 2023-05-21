@@ -41,7 +41,7 @@ func (applicationsController *ApplicationsController) SaveBasicDetails(c *gin.Co
 		return
 	}
 
-	resp, e := applicationsService.SaveBasicDetails(c.Keys["userId"].(int), request)
+	resp, e := applicationsService.SaveBasicDetails(c.Keys["userId"].(int), &request)
 	if e != nil {
 		logrus.Error(e.Message)
 		c.JSON(e.Code, e)

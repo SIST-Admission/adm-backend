@@ -5,8 +5,8 @@ type SaveBasicDetailsRequest struct {
 	DoB                string `json:"dob"`
 	Gender             string `json:"gender"`
 	Category           string `json:"category"`
-	Is_CoI             bool   `json:"isCoi"`
-	Is_PwD             bool   `json:"isPwd"`
+	IsCoI              bool   `json:"isCoi"`
+	IsPwD              bool   `json:"isPwd"`
 	FatherName         string `json:"fatherName"`
 	MotherName         string `json:"motherName"`
 	Nationality        string `json:"nationality"`
@@ -21,8 +21,8 @@ type SaveBasicDetailsResponse struct {
 	DoB                string `json:"dob"`
 	Gender             string `json:"gender"`
 	Category           string `json:"category"`
-	Is_CoI             bool   `json:"isCoi"`
-	Is_PwD             bool   `json:"isPwd"`
+	IsCoI              bool   `json:"isCoi"`
+	IsPwD              bool   `json:"isPwd"`
 	FatherName         string `json:"fatherName"`
 	MotherName         string `json:"motherName"`
 	Nationality        string `json:"nationality"`

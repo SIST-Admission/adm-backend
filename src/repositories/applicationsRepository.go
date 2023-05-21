@@ -61,8 +61,68 @@ func (repo *ApplicationsRepository) CreateNewApplication(userId int, application
 	return &application, nil
 }
 
-func (repo *ApplicationsRepository) SaveBasicDetails(payload dto.SaveBasicDetailsRequest) (*models.BasicDetails, error) {
+func (repo *ApplicationsRepository) SaveBasicDetails(appId int, payload *dto.SaveBasicDetailsRequest) (*models.BasicDetails, error) {
 	logrus.Info("ApplicationsRepository.SaveBasicDetails")
-	// db := db.GetInstance()
-	return nil, nil
+	db := db.GetInstance()
+	tx := db.Begin()
+	defer tx.Rollback()
+
+	basicDetails := models.BasicDetails{
+		Name:               payload.Name,
+		DoB:                time.Now().Format("2006-01-02 15:04:05"),
+		Gender:             payload.Gender,
+		Category:           payload.Category,
+		IsCoI:              payload.IsCoI,
+		IsPwD:              payload.IsPwD,
+		FatherName:         payload.FatherName,
+		MotherName:         payload.MotherName,
+		Nationality:        payload.Nationality,
+		IdentityType:       payload.IdentityType,
+		IdentityNumber:     payload.IdentityNumber,
+		IdentityDocumentId: payload.IdentityDocumentId,
+	}
+
+	if err := tx.Model(models.BasicDetails{}).Save(&basicDetails).Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveBasicDetails: ", err)
+		return nil, err
+	}
+
+	if err := tx.Model(models.Application{}).Where("id = ?", appId).Update("basic_details_id", basicDetails.Id).Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveBasicDetails: ", err)
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveBasicDetails: ", err)
+		return nil, err
+	}
+	return &basicDetails, nil
+}
+
+func (repo *ApplicationsRepository) UpdateBasicDetails(basicDetailsId int, payload *dto.SaveBasicDetailsRequest) (*models.BasicDetails, error) {
+	logrus.Info("ApplicationsRepository.UpdateBasicDetails")
+	db := db.GetInstance()
+
+	var basicDetails models.BasicDetails = models.BasicDetails{
+		Id:                 basicDetailsId,
+		Name:               payload.Name,
+		DoB:                time.Now().Format("2006-01-02 15:04:05"),
+		Gender:             payload.Gender,
+		Category:           payload.Category,
+		IsCoI:              payload.IsCoI,
+		IsPwD:              payload.IsPwD,
+		FatherName:         payload.FatherName,
+		MotherName:         payload.MotherName,
+		Nationality:        payload.Nationality,
+		IdentityType:       payload.IdentityType,
+		IdentityNumber:     payload.IdentityNumber,
+		IdentityDocumentId: payload.IdentityDocumentId,
+	}
+
+	if err := db.Model(models.BasicDetails{}).Where("id = ?", basicDetailsId).Updates(basicDetails).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateBasicDetails: ", err)
+		return nil, err
+	}
+
+	return &basicDetails, nil
 }

@@ -17,6 +17,10 @@ func (applicationValidator ApplicationValidator) ValidateSaveBasicDetailsRequest
 		fieldErrors = append(fieldErrors, "date of birth should not be empty")
 	}
 
+	if request.Gender == "" {
+		fieldErrors = append(fieldErrors, "please select a gender")
+	}
+
 	if request.Category == "" {
 		fieldErrors = append(fieldErrors, "please select a category")
 	} else if request.Category != "GEN" && request.Category != "OBC" && request.Category != "SC" && request.Category != "ST" && request.Category != "EWS" {

@@ -31,6 +31,7 @@ func start() {
 	}
 
 	engine := gin.New()
+	engine.Use(middlewares.CORSMiddleware())
 	loadRoutes(engine, viper.GetString("server.basePath"))
 	startServer(engine, viper.GetString("server.port"))
 }

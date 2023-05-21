@@ -10,7 +10,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	logrus.Info("Middleware:CORSMiddleware")
 	return func(c *gin.Context) {
 
-		allowOrigin := viper.GetString(viper.GetString("env" + "." + "cors.allowOrigin"))
+		allowOrigin := viper.GetString(viper.GetString("env") + "." + "cors.allowOrigin")
 		logrus.Info("Middleware:CORSMiddleware: allowOrigin: ", allowOrigin)
 
 		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)

@@ -1,17 +1,19 @@
 # Generic application properties
-
-server:
-  host: sistadm.us
-  port: 8080
-
-basepath: ""
 jwtSecret: "HelloSefali@2007"
 
 # Set the environment to use
-env: prod
+env: dev
 
 # Production environment properties
 prod:
+  server:
+    host: sistadm.us
+    basepath: ""
+    port: 8080
+  
+  cors:
+    allowOrigin: "https://sistadm.us"
+
   db:
     host: 157.245.17.155
     port: 5432
@@ -21,18 +23,34 @@ prod:
 
 # Development environment properties
 dev:
+  server:
+    host: localhost
+    basepath: ""
+    port: 8080
+  
+  cors:
+    allowOrigin: "http://localhost:3000"
+
   db:
-    host: 127.0.0.1
+    host: 157.245.17.155
     port: 5432
     dbname: sistadm
-    user: postgres
-    password: postgres
+    user: sistadm_write
+    password: Bhulgaya@2326
 
 # Staging environment properties
-verify:
+stage:
+  server:
+    host: sistadm.us
+    basepath: ""
+    port: 8080
+  
+  cors:
+    allowOrigin: "https://sistadm.us"
+
   db:
-    host: db.sistadm.us
+    host: 157.245.17.155
     port: 5432
     dbname: sistadm
-    user: sistadm
-    password: Sist@2023@Adm
+    user: sistadm_write
+    password: Bhulgaya@2326

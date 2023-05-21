@@ -19,6 +19,7 @@ import (
 )
 
 var configFilePath *string
+var env string
 
 func start() {
 	configFilePath = flag.String("config-path", "conf/", "conf/")
@@ -26,14 +27,14 @@ func start() {
 	loadConfig(configFilePath)
 
 	// Set Server Mode
-	if viper.GetString("env") == "prod" {
+	if env == "prod." {
 		// gin.SetMode(gin.ReleaseMode)
 	}
 
 	engine := gin.New()
 	engine.Use(middlewares.CORSMiddleware())
-	loadRoutes(engine, viper.GetString("server.basePath"))
-	startServer(engine, viper.GetString("server.port"))
+	loadRoutes(engine, viper.GetString(env+"server.basePath"))
+	startServer(engine, viper.GetString(env+"server.port"))
 }
 
 func startServer(engine *gin.Engine, port string) {
@@ -44,8 +45,8 @@ func startServer(engine *gin.Engine, port string) {
 
 	go func() {
 		logrus.Info("Starting server on port ", port)
-		logrus.Info("Server host ", viper.GetString("server.host"))
-		logrus.Info("Server base path ", viper.GetString("basePath"))
+		logrus.Info("Server host ", viper.GetString(env+"server.host"))
+		logrus.Info("Server base path ", viper.GetString(env+"basePath"))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
@@ -75,6 +76,8 @@ func loadConfig(configFilePath *string) {
 	if err != nil {
 		log.Fatalf("Error reading config file, %v", err)
 	}
+	env = viper.GetString("env") + "."
+	logrus.Info("Environment: ", env)
 }
 
 func loadRoutes(engine *gin.Engine, basePath string) {

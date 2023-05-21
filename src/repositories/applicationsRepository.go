@@ -69,7 +69,7 @@ func (repo *ApplicationsRepository) SaveBasicDetails(appId int, payload *dto.Sav
 
 	basicDetails := models.BasicDetails{
 		Name:               payload.Name,
-		DoB:                time.Now().Format("2006-01-02 15:04:05"),
+		DoB:                payload.DoB, // Accepted format: "YYYY-MM-DD"
 		Gender:             payload.Gender,
 		Category:           payload.Category,
 		IsCoI:              payload.IsCoI,
@@ -106,7 +106,7 @@ func (repo *ApplicationsRepository) UpdateBasicDetails(basicDetailsId int, paylo
 	var basicDetails models.BasicDetails = models.BasicDetails{
 		Id:                 basicDetailsId,
 		Name:               payload.Name,
-		DoB:                time.Now().Format("2006-01-02 15:04:05"),
+		DoB:                payload.DoB, // Accepted format: "YYYY-MM-DD"
 		Gender:             payload.Gender,
 		Category:           payload.Category,
 		IsCoI:              payload.IsCoI,

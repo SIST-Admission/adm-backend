@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/SIST-Admission/adm-backend/src/dto"
 	"github.com/SIST-Admission/adm-backend/src/service"
@@ -49,4 +50,24 @@ func (applicationsController *ApplicationsController) SaveBasicDetails(c *gin.Co
 	}
 
 	c.JSON(http.StatusCreated, resp)
+}
+
+func (applicationsController *ApplicationsController) GetApplication(c *gin.Context) {
+	logrus.Info("ApplicationController.GetApplication")
+
+	userId := c.Keys["userId"].(int)
+
+	if strconv.Itoa(userId) != c.Param("userId") && c.Keys["role"] != "ADMIN" {
+		c.JSON(http.StatusForbidden, dto.Error{Code: http.StatusForbidden, Message: "Forbidden"})
+		return
+	}
+
+	application, e := applicationsService.GetApplication(userId)
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+
+	c.JSON(http.StatusOK, application)
 }

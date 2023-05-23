@@ -10,7 +10,6 @@ import (
 
 type ApplicationsService struct{}
 
-var applicationsService ApplicationsService = ApplicationsService{}
 var applicationsRepository repositories.ApplicationsRepository = repositories.ApplicationsRepository{}
 var applicationValidator validators.ApplicationValidator = validators.ApplicationValidator{}
 
@@ -69,14 +68,14 @@ func (applicationsService *ApplicationsService) SaveBasicDetails(userId int, req
 	// TODO: Save basic details to database
 	if application.BasicDetailsId == 0 {
 		logrus.Info("Creating new basic details")
-		basicDetails, err = applicationsRepository.SaveBasicDetails(application.Id, request)
+		basicDetails, err = applicationsRepository.SaveBasicDetails(userId, application.Id, request)
 		if err != nil {
 			logrus.Error("Error saving basic details: ", err)
 			return nil, &dto.Error{Code: 500, Message: "Internal Server Error"}
 		}
 	} else {
 		logrus.Info("Updating existing basic details")
-		basicDetails, err = applicationsRepository.UpdateBasicDetails(application.BasicDetailsId, request)
+		basicDetails, err = applicationsRepository.UpdateBasicDetails(userId, application.BasicDetailsId, request)
 		if err != nil {
 			logrus.Error("Error saving basic details: ", err)
 			return nil, &dto.Error{Code: 500, Message: "Internal Server Error"}
@@ -97,5 +96,37 @@ func (applicationsService *ApplicationsService) SaveBasicDetails(userId int, req
 		IdentityType:       basicDetails.IdentityType,
 		IdentityNumber:     basicDetails.IdentityNumber,
 		IdentityDocumentId: basicDetails.IdentityDocumentId,
+	}, nil
+}
+
+func (applicationsService *ApplicationsService) GetApplication(userId int) (*dto.GetApplicationResponse, *dto.Error) {
+	logrus.Info("ApplicationsService.GetApplication")
+	logrus.Info("User: ", userId)
+
+	// TODO: Get application from database
+	application, err := applicationsRepository.GetApplicationByUserId(userId)
+	if err != nil {
+		logrus.Error(err)
+		return nil, &dto.Error{Code: 500, Message: err.Error()}
+	}
+
+	if application == nil {
+		logrus.Error("Application does not exist for user: ", userId)
+		return nil, &dto.Error{Code: 400, Message: "Application does not exist"}
+	}
+
+	// Get Application Details and Basic Details from database
+	applicationDetails, err := applicationsRepository.GetApplicationDetails(application.Id)
+	if err != nil {
+		logrus.Error(err)
+		return nil, &dto.Error{Code: 500, Message: err.Error()}
+	}
+
+	return &dto.GetApplicationResponse{
+		Id:                   applicationDetails.Id,
+		ApplicationType:      applicationDetails.ApplicationType,
+		Status:               applicationDetails.Status,
+		BasicDetails:         applicationDetails.BasicDetails,
+		ApplicationStartDate: applicationDetails.ApplicationStartDate,
 	}, nil
 }

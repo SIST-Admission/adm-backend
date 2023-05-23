@@ -41,8 +41,6 @@ func (applicationValidator ApplicationValidator) ValidateSaveBasicDetailsRequest
 		fieldErrors = append(fieldErrors, "invalid identity type")
 	} else if request.IdentityNumber == "" {
 		fieldErrors = append(fieldErrors, "identity number should not be empty")
-	} else if request.IdentityDocumentId == 0 {
-		fieldErrors = append(fieldErrors, "Please Upload Identity Document")
 	}
 
 	if request.Nationality == "" {

@@ -37,11 +37,12 @@ func (applicationValidator ApplicationValidator) ValidateSaveBasicDetailsRequest
 
 	if request.IdentityType == "" {
 		fieldErrors = append(fieldErrors, "please select an identity type")
-	} else if request.IdentityType != "Aadhaar" && request.IdentityType != "PAN" && request.IdentityType != "Voter ID" && request.IdentityType != "Passport" {
-		fieldErrors = append(fieldErrors, "invalid identity type")
-	} else if request.IdentityNumber == "" {
-		fieldErrors = append(fieldErrors, "identity number should not be empty")
 	}
+	// else if request.IdentityType != "Aadhaar" && request.IdentityType != "PAN" && request.IdentityType != "Voter ID" && request.IdentityType != "Passport" {
+	// 	fieldErrors = append(fieldErrors, "invalid identity type")
+	// } else if request.IdentityNumber == "" {
+	// 	fieldErrors = append(fieldErrors, "identity number should not be empty")
+	// }
 
 	if request.Nationality == "" {
 		fieldErrors = append(fieldErrors, "please select your nationality")

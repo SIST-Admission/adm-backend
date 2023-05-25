@@ -111,6 +111,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 			applications.GET("/:userId", applicationsController.GetApplication)
 			applications.POST("/start", applicationsController.StartApplication)
 			applications.POST("/basicDetails", applicationsController.SaveBasicDetails)
+			applications.POST("/academicDetails", applicationsController.SaveAcademicDetails)
 		}
 
 		// Documents Routes "/{basePath}/documents"

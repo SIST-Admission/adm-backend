@@ -128,5 +128,35 @@ func (applicationsService *ApplicationsService) GetApplication(userId int) (*dto
 		Status:               applicationDetails.Status,
 		BasicDetails:         applicationDetails.BasicDetails,
 		ApplicationStartDate: applicationDetails.ApplicationStartDate,
+		AcademicDetails:      applicationDetails.AcademicDetails,
+	}, nil
+}
+
+func (applicationsService *ApplicationsService) SaveAcademicDetails(userId int, request *dto.SaveAcademicDetailsRequest) (map[string]interface{}, *dto.Error) {
+	logrus.Info("ApplicationsService.SaveAcademicDetails")
+	logrus.Info("User: ", userId)
+
+	application, err := applicationsRepository.GetApplicationByUserId(userId)
+	if err != nil {
+		logrus.Error(err)
+		return nil, &dto.Error{Code: 500, Message: err.Error()}
+	}
+
+	if application == nil {
+		logrus.Error("Application does not exist for user: ", userId)
+		return nil, &dto.Error{Code: 400, Message: "Application does not exist"}
+	}
+
+	// Save Academic Details to database
+	err = applicationsRepository.SaveAcademicDetails(userId, application.Id, request)
+	if err != nil {
+		logrus.Error("Error saving academic details: ", err)
+		return nil, &dto.Error{Code: 500, Message: "Internal Server Error"}
+	}
+
+	return map[string]interface{}{
+		"code":    201,
+		"success": true,
+		"message": "Academic Details saved successfully",
 	}, nil
 }

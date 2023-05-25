@@ -19,9 +19,10 @@ type StartApplicationResponse struct {
 }
 
 type GetApplicationResponse struct {
-	Id                   int                  `json:"id"`
-	ApplicationType      string               `json:"applicationType"`
-	Status               string               `json:"status"`
-	BasicDetails         *models.BasicDetails `json:"basicDetails"`
-	ApplicationStartDate string               `json:"applicationStartDate"`
+	Id                   int                     `json:"id"`
+	ApplicationType      string                  `json:"applicationType"`
+	Status               string                  `json:"status"`
+	BasicDetails         *models.BasicDetails    `json:"basicDetails"`
+	ApplicationStartDate string                  `json:"applicationStartDate"`
+	AcademicDetails      *models.AcademicDetails `json:"academicDetails"`
 }

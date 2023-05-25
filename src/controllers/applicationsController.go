@@ -71,3 +71,22 @@ func (applicationsController *ApplicationsController) GetApplication(c *gin.Cont
 
 	c.JSON(http.StatusOK, application)
 }
+
+func (applicationsController *ApplicationsController) SaveAcademicDetails(c *gin.Context) {
+	logrus.Info("ApplicationController.SaveAcademicDetails")
+	var request dto.SaveAcademicDetailsRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, e := applicationsService.SaveAcademicDetails(c.Keys["userId"].(int), &request)
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+
+	c.JSON(http.StatusCreated, resp)
+}

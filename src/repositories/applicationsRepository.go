@@ -231,7 +231,14 @@ func (repo *ApplicationsRepository) GetApplicationDetails(appId int) (*models.Ap
 
 	db := db.GetInstance()
 	var application models.Application
-	if err := db.Model(models.Application{}).Where("id = ?", appId).Preload("BasicDetails").Preload("BasicDetails.IdentityDocument").Preload("BasicDetails.PhotoDocument").Preload("BasicDetails.SignatureDocument").First(&application).Error; err != nil {
+	if err := db.Model(models.Application{}).Where("id = ?", appId).
+		Preload("BasicDetails").Preload("BasicDetails.IdentityDocument").
+		Preload("BasicDetails.PhotoDocument").
+		Preload("BasicDetails.SignatureDocument").
+		Preload("AcademicDetails").
+		Preload("AcademicDetails.ClassXDetails").Preload("AcademicDetails.ClassXDetails.MarksheetDocument").
+		Preload("AcademicDetails.ClassXIIDetails").Preload("AcademicDetails.ClassXIIDetails.MarksheetDocument").
+		First(&application).Error; err != nil {
 		logrus.Error("ApplicationsRepository.GetApplicationDetails: ", err)
 		return nil, err
 	}
@@ -239,4 +246,129 @@ func (repo *ApplicationsRepository) GetApplicationDetails(appId int) (*models.Ap
 	// db.Preload("IdentityDocument").First(&application.BasicDetails)
 
 	return &application, nil
+}
+
+func (repo *ApplicationsRepository) SaveAcademicDetails(userId, appId int, request *dto.SaveAcademicDetailsRequest) error {
+	logrus.Info("ApplicationsRepository.SaveAcademicDetails")
+
+	db := db.GetInstance()
+	tx := db.Begin()
+	defer tx.Rollback()
+
+	// Save Class X Details
+	classXMarksheetDocument := models.Document{
+		UserID:       userId,
+		Key:          request.Class10Details.Marksheet.Key,
+		DocumentName: request.Class10Details.Marksheet.Key,
+		MimeType:     request.Class10Details.Marksheet.MimeType,
+		FileUrl:      request.Class10Details.Marksheet.Url,
+		IsVerified:   false,
+	}
+	if err := tx.Model(models.Document{}).Save(&classXMarksheetDocument).Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+		return err
+	}
+
+	classXDetails := models.School{
+		Board:               request.Class10Details.BoardName,
+		YearOfPassing:       request.Class10Details.YearOfPass,
+		RollNumber:          request.Class10Details.RollNumber,
+		Percentage:          request.Class10Details.Percentage,
+		TotalMarks:          request.Class10Details.TotalMarks,
+		MarksObtained:       request.Class10Details.Obtained,
+		MarksheetDocumentId: classXMarksheetDocument.Id,
+		SchoolName:          request.Class10Details.SchoolName,
+	}
+
+	if err := tx.Model(models.School{}).Save(&classXDetails).Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+		return err
+	}
+
+	if request.Class12Details != nil {
+		// Save Class XII Details
+		classXIIMarksheetDocument := models.Document{
+			UserID:       userId,
+			Key:          request.Class12Details.Marksheet.Key,
+			DocumentName: request.Class12Details.Marksheet.Key,
+			MimeType:     request.Class12Details.Marksheet.MimeType,
+			FileUrl:      request.Class12Details.Marksheet.Url,
+			IsVerified:   false,
+		}
+
+		if err := tx.Model(models.Document{}).Save(&classXIIMarksheetDocument).Error; err != nil {
+			logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+			return err
+		}
+
+		classXIIDetails := models.School{
+			Board:               request.Class12Details.BoardName,
+			YearOfPassing:       request.Class12Details.YearOfPass,
+			RollNumber:          request.Class12Details.RollNumber,
+			Percentage:          request.Class12Details.Percentage,
+			TotalMarks:          request.Class12Details.TotalMarks,
+			MarksObtained:       request.Class12Details.Obtained,
+			MarksheetDocumentId: classXIIMarksheetDocument.Id,
+			SchoolName:          request.Class12Details.SchoolName,
+		}
+
+		if err := tx.Model(models.School{}).Save(&classXIIDetails).Error; err != nil {
+			logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+			return err
+		}
+	}
+
+	var jeeMainsRank *int = nil
+	var jeeMainsMarks *float32 = nil
+	var jeeAdvancedRank *int = nil
+	var jeeAdvancedMarks *float32 = nil
+	var cuetRank *int = nil
+	var cuetMarks *float32 = nil
+
+	if request.JeeMainsDetails != nil {
+		jeeMainsRank = &request.JeeMainsDetails.Rank
+		jeeMainsMarks = &request.JeeMainsDetails.Score
+	}
+
+	if request.JeeAdvancedDetails != nil {
+		jeeAdvancedRank = &request.JeeAdvancedDetails.Rank
+		jeeAdvancedMarks = &request.JeeAdvancedDetails.Score
+	}
+
+	if request.CuetDetails != nil {
+		cuetRank = &request.CuetDetails.Rank
+		cuetMarks = &request.CuetDetails.Score
+	}
+
+	// Save Academic Details
+	academicDetails := models.AcademicDetails{
+		Class10SchoolId:  classXDetails.Id,
+		Class12SchoolId:  &classXDetails.Id,
+		JeeMainsRank:     jeeMainsRank,
+		JeeMainsMarks:    jeeMainsMarks,
+		JeeAdvancedRank:  jeeAdvancedRank,
+		JeeAdvancedMarks: jeeAdvancedMarks,
+		CuetRank:         cuetRank,
+		CuetMarks:        cuetMarks,
+		MeritScore:       float32(0),
+		DiplomaId:        nil,
+	}
+
+	if err := tx.Model(models.AcademicDetails{}).Save(&academicDetails).Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+		return err
+	}
+
+	// Save Application
+	if err := tx.Model(models.Application{}).Where("id = ?", appId).Updates(models.Application{AcademicDetailsId: academicDetails.Id}).Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+		return err
+	}
+
+	return nil
 }

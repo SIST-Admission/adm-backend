@@ -238,6 +238,7 @@ func (repo *ApplicationsRepository) GetApplicationDetails(appId int) (*models.Ap
 		Preload("AcademicDetails").
 		Preload("AcademicDetails.ClassXDetails").Preload("AcademicDetails.ClassXDetails.MarksheetDocument").
 		Preload("AcademicDetails.ClassXIIDetails").Preload("AcademicDetails.ClassXIIDetails.MarksheetDocument").
+		Preload("AcademicDetails.DiplomaDetails").Preload("AcademicDetails.DiplomaDetails.MarksheetDocument").
 		First(&application).Error; err != nil {
 		logrus.Error("ApplicationsRepository.GetApplicationDetails: ", err)
 		return nil, err
@@ -274,8 +275,8 @@ func (repo *ApplicationsRepository) SaveAcademicDetails(userId, appId int, reque
 		YearOfPassing:       request.Class10Details.YearOfPass,
 		RollNumber:          request.Class10Details.RollNumber,
 		Percentage:          request.Class10Details.Percentage,
-		TotalMarks:          request.Class10Details.TotalMarks,
-		MarksObtained:       request.Class10Details.Obtained,
+		TotalMarks:          0, // Not Storing Total Marks for Class X
+		MarksObtained:       0, // Not Storing Marks Obtained for Class X``
 		MarksheetDocumentId: classXMarksheetDocument.Id,
 		SchoolName:          request.Class10Details.SchoolName,
 	}
@@ -285,6 +286,40 @@ func (repo *ApplicationsRepository) SaveAcademicDetails(userId, appId int, reque
 		return err
 	}
 
+	var diplomaDetailsId *int = nil
+
+	if request.DiplomaDetails != nil {
+		// Save Diploma Details
+		diplomaMarksheetDocument := models.Document{
+			UserID:       userId,
+			Key:          request.DiplomaDetails.Marksheet.Key,
+			DocumentName: request.DiplomaDetails.Marksheet.Key,
+			MimeType:     request.DiplomaDetails.Marksheet.MimeType,
+			FileUrl:      request.DiplomaDetails.Marksheet.Url,
+			IsVerified:   false,
+		}
+
+		if err := tx.Model(models.Document{}).Save(&diplomaMarksheetDocument).Error; err != nil {
+			logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+			return err
+		}
+
+		diplomaDetails := models.Diploma{
+			CollegeName:         request.DiplomaDetails.CollegeName,
+			Department:          request.DiplomaDetails.Department,
+			YearOfPassing:       request.DiplomaDetails.YearOfPass,
+			Cgpa:                request.DiplomaDetails.Cgpa,
+			MarksheetDocumentId: diplomaMarksheetDocument.Id,
+		}
+
+		if err := tx.Model(models.Diploma{}).Save(&diplomaDetails).Error; err != nil {
+			logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
+			return err
+		}
+
+		diplomaDetailsId = &diplomaDetails.Id
+	}
+	var classXIIDetailsId *int = nil
 	if request.Class12Details != nil {
 		// Save Class XII Details
 		classXIIMarksheetDocument := models.Document{
@@ -316,6 +351,8 @@ func (repo *ApplicationsRepository) SaveAcademicDetails(userId, appId int, reque
 			logrus.Error("ApplicationsRepository.SaveAcademicDetails: ", err)
 			return err
 		}
+
+		classXIIDetailsId = &classXIIDetails.Id
 	}
 
 	var jeeMainsRank *int = nil
@@ -343,7 +380,7 @@ func (repo *ApplicationsRepository) SaveAcademicDetails(userId, appId int, reque
 	// Save Academic Details
 	academicDetails := models.AcademicDetails{
 		Class10SchoolId:  classXDetails.Id,
-		Class12SchoolId:  &classXDetails.Id,
+		Class12SchoolId:  classXIIDetailsId,
 		JeeMainsRank:     jeeMainsRank,
 		JeeMainsMarks:    jeeMainsMarks,
 		JeeAdvancedRank:  jeeAdvancedRank,
@@ -351,7 +388,7 @@ func (repo *ApplicationsRepository) SaveAcademicDetails(userId, appId int, reque
 		CuetRank:         cuetRank,
 		CuetMarks:        cuetMarks,
 		MeritScore:       float32(0),
-		DiplomaId:        nil,
+		DiplomaId:        diplomaDetailsId,
 	}
 
 	if err := tx.Model(models.AcademicDetails{}).Save(&academicDetails).Error; err != nil {

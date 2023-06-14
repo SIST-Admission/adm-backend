@@ -14,6 +14,7 @@ type AcademicDetails struct {
 	MeritScore       float32  `gorm:"column:merit_score" json:"meritScore"`
 	ClassXDetails    *School  `gorm:"foreignKey:class_10_school_id;AssociationForeignKey:id" json:"classXDetails"`
 	ClassXIIDetails  *School  `gorm:"foreignKey:class_12_school_id;AssociationForeignKey:id" json:"classXIIDetails"`
+	DiplomaDetails   *Diploma `gorm:"foreignKey:diploma_id;AssociationForeignKey:id" json:"diplomaDetails"`
 }
 
 func (AcademicDetails) TableName() string {
@@ -35,4 +36,18 @@ type School struct {
 
 func (School) TableName() string {
 	return "school"
+}
+
+type Diploma struct {
+	Id                  int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`
+	CollegeName         string    `gorm:"column:college_name" json:"collegeName"`
+	Department          string    `gorm:"column:department" json:"department"`
+	YearOfPassing       string    `gorm:"column:year_of_passing" json:"yearOfPassing"`
+	Cgpa                float32   `gorm:"column:cgpa" json:"cgpa"`
+	MarksheetDocumentId int       `gorm:"column:document_id" json:"marksheetDocumentId"`
+	MarksheetDocument   *Document `gorm:"foreignKey:document_id;AssociationForeignKey:id" json:"marksheetDocument"`
+}
+
+func (Diploma) TableName() string {
+	return "diploma"
 }

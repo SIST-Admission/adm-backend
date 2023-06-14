@@ -6,16 +6,7 @@ type Class10Details struct {
 	BoardName  string            `json:"boardName"`
 	YearOfPass string            `json:"yearOfPass"`
 	Percentage float32           `json:"percentage"`
-	TotalMarks float32           `json:"totalMarks"`
-	Obtained   float32           `json:"obtained"`
-	Subjects   []Class10Subjects `json:"subjects"`
 	Marksheet  MarksheetDocument `json:"marksheet"`
-}
-
-type Class10Subjects struct {
-	SubjectName string  `json:"subjectName"`
-	TotalMarks  float32 `json:"totalMarks"`
-	Obtained    float32 `json:"obtained"`
 }
 
 type Class12Details struct {
@@ -58,6 +49,7 @@ type JeeAdvancedDetails struct {
 type SaveAcademicDetailsRequest struct {
 	Class10Details     Class10Details      `json:"class10Details"`
 	Class12Details     *Class12Details     `json:"class12Details"`
+	DiplomaDetails     *DiplomaDetails     `json:"diplomaDetails"`
 	CuetDetails        *CuetDetails        `json:"cuetDetails"`
 	JeeMainsDetails    *JeeMainsDetails    `json:"jeeMainsDetails"`
 	JeeAdvancedDetails *JeeAdvancedDetails `json:"jeeAdvancedDetails"`
@@ -67,4 +59,12 @@ type MarksheetDocument struct {
 	Key      string `json:"key"`
 	MimeType string `json:"mimeType"`
 	Url      string `json:"url"`
+}
+
+type DiplomaDetails struct {
+	CollegeName string            `json:"collegeName"`
+	YearOfPass  string            `json:"yearOfPass"`
+	Department  string            `json:"department"`
+	Cgpa        float32           `json:"cgpa"`
+	Marksheet   MarksheetDocument `json:"marksheet"`
 }

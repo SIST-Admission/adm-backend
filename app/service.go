@@ -129,6 +129,11 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 			payments.POST("/getOrder", paymentsController.GetOrder)
 		}
 
+		hooks := app.Group("/hooks")
+		{
+			hooks.POST("/verifyPayment", paymentsController.VerifyPayment)
+		}
+
 	}
 }
 

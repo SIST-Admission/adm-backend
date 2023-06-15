@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/SIST-Admission/adm-backend/src/service"
@@ -34,8 +33,8 @@ func (paymentsController *PaymentsController) VerifyPayment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	jsonString, _ := json.Marshal(request)
-	logrus.Info(string(jsonString))
+
+	logrus.Info(request)
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
 	})

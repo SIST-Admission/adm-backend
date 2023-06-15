@@ -239,6 +239,7 @@ func (repo *ApplicationsRepository) GetApplicationDetails(appId int) (*models.Ap
 		Preload("AcademicDetails.ClassXDetails").Preload("AcademicDetails.ClassXDetails.MarksheetDocument").
 		Preload("AcademicDetails.ClassXIIDetails").Preload("AcademicDetails.ClassXIIDetails.MarksheetDocument").
 		Preload("AcademicDetails.DiplomaDetails").Preload("AcademicDetails.DiplomaDetails.MarksheetDocument").
+		Preload("PaymentDetails").
 		First(&application).Error; err != nil {
 		logrus.Error("ApplicationsRepository.GetApplicationDetails: ", err)
 		return nil, err

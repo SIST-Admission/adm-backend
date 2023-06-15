@@ -10,6 +10,7 @@ type Application struct {
 	Status               string           `gorm:"column:status" json:"status"`
 	BasicDetails         *BasicDetails    `gorm:"foreignKey:basic_details_id;AssociationForeignKey:id" json:"basic_details"`
 	AcademicDetails      *AcademicDetails `gorm:"foreignKey:academic_details_id;AssociationForeignKey:id" json:"academic_details"`
+	PaymentDetails       *Payment         `gorm:"foreignKey:payment_id;AssociationForeignKey:id" json:"payment_details"`
 }
 
 func (Application) TableName() string {

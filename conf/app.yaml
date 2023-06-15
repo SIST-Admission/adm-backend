@@ -20,6 +20,10 @@ prod:
     dbname: sistadm
     user: sistadm_write
     password: Bhulgaya@2326
+  
+  razorpay:
+    key: rzp_test_mtawFMx1J5ch4R
+    secret: HDYV4GlTuTL5gu7PWcGgBs9g
 
 # Development environment properties
 dev:
@@ -38,6 +42,10 @@ dev:
     user: sistadm_write
     password: Bhulgaya@2326
 
+  razorpay:
+    key: rzp_test_mtawFMx1J5ch4R
+    secret: HDYV4GlTuTL5gu7PWcGgBs9g
+
 # Staging environment properties
 stage:
   server:
@@ -54,3 +62,7 @@ stage:
     dbname: sistadm
     user: sistadm_write
     password: Bhulgaya@2326
+
+  razorpay:
+    key: rzp_test_mtawFMx1J5ch4R
+    secret: HDYV4GlTuTL5gu7PWcGgBs9g

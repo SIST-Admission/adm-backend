@@ -85,6 +85,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 	// Controllers
 	applicationsController := controllers.ApplicationsController{}
 	userController := controllers.UserController{}
+	paymentsController := controllers.PaymentsController{}
 
 	// Application Routes "/{basePath}"
 	app := engine.Group(basePath)
@@ -119,6 +120,13 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		documents.Use(middlewares.Auth)
 		{
 
+		}
+
+		// Payments Routes "/{basePath}/payments"
+		payments := app.Group("/payments")
+		payments.Use(middlewares.Auth)
+		{
+			payments.POST("/getOrder", paymentsController.GetOrder)
 		}
 
 	}

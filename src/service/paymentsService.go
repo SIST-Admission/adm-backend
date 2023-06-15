@@ -55,11 +55,12 @@ func (paymentsService *PaymentsService) GetOrder(userId int) (map[string]interfa
 
 	key := viper.GetString(viper.GetString("env") + ".razorpay.key")
 	secret := viper.GetString(viper.GetString("env") + ".razorpay.secret")
+	amount := viper.GetInt(viper.GetString("env") + ".application.fee")
 	logrus.Info("Razorpay Key: ", key)
 	logrus.Info("Razorpay Secret: ", secret)
 
 	// Razorpay client
-	client := razorpay.NewClient("rzp_test_mtawFMx1J5ch4R", "HDYV4GlTuTL5gu7PWcGgBs9g")
+	client := razorpay.NewClient(key, secret)
 
 	if paymentDetails != nil {
 		logrus.Info("Fetching existing order details")
@@ -79,7 +80,7 @@ func (paymentsService *PaymentsService) GetOrder(userId int) (map[string]interfa
 
 	// Order Details Doesn't exist, create new order
 	data := map[string]interface{}{
-		"amount":          50000,
+		"amount":          amount * 100,
 		"currency":        "INR",
 		"receipt":         "app_fee_" + strconv.Itoa(userId) + "_" + strconv.Itoa(user.ApplicationId) + "_" + strconv.Itoa(int(time.Now().Unix())),
 		"partial_payment": false,

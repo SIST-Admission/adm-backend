@@ -24,6 +24,9 @@ prod:
   razorpay:
     key: rzp_test_mtawFMx1J5ch4R
     secret: HDYV4GlTuTL5gu7PWcGgBs9g
+  
+  application:
+    fee: 500
 
 # Development environment properties
 dev:
@@ -45,6 +48,9 @@ dev:
   razorpay:
     key: rzp_test_mtawFMx1J5ch4R
     secret: HDYV4GlTuTL5gu7PWcGgBs9g
+  
+  application:
+    fee: 500
 
 # Staging environment properties
 stage:
@@ -66,3 +72,6 @@ stage:
   razorpay:
     key: rzp_test_mtawFMx1J5ch4R
     secret: HDYV4GlTuTL5gu7PWcGgBs9g
+  
+  application:
+    fee: 500

@@ -9,7 +9,6 @@ import (
 	"github.com/SIST-Admission/adm-backend/src/models"
 	"github.com/SIST-Admission/adm-backend/src/repositories"
 	razorpay "github.com/razorpay/razorpay-go"
-	"github.com/razorpay/razorpay-go/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -129,17 +128,26 @@ func (paymentsService *PaymentsService) VerifyPayment(payload, signature string)
 	logrus.Info("PaymentsService.VerifyPayment")
 	var paymentDetails map[string]interface{}
 
-	secret := viper.GetString(viper.GetString("env") + ".razorpay.secret")
-
-	// Verify Signature
-	if utils.VerifyWebhookSignature(payload, signature, secret) {
-		logrus.Info("Signature verified")
-	} else {
-		logrus.Error("Signature verification failed")
-	}
 	// Parse payload
 	if err := json.Unmarshal([]byte(payload), &paymentDetails); err != nil {
 		logrus.Error("Failed to parse payment details: ", err)
+		return err
+	}
+
+	entity := paymentDetails["payload"].(map[string]interface{})["payment"].(map[string]interface{})["entity"].(map[string]interface{})
+
+	if entity == nil {
+		logrus.Error("Failed to parse payment details: ", entity)
+		return nil
+	}
+
+	captured := entity["captured"].(bool)
+	status := entity["status"].(string)
+
+	// Update payment details
+	orderId := entity["order_id"].(string)
+	if err := paymentsRepository.UpdatePaymentStatusByOrderId(orderId, status, captured); err != nil {
+		logrus.Error("Failed to update payment status: ", err)
 		return err
 	}
 

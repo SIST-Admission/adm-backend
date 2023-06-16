@@ -7,6 +7,7 @@ type Payment struct {
 	PaymentMode string  `gorm:"column:payment_mode"`
 	IsPaid      bool    `gorm:"column:is_paid"`
 	RPOrderId   string  `gorm:"column:rp_order_id"`
+	Status      string  `gorm:"column:status"`
 }
 
 func (Payment) TableName() string {

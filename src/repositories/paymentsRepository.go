@@ -61,3 +61,28 @@ func (repo *PaymentsRepository) AddPaymentToApplication(appId, paymentId int) er
 
 	return nil
 }
+
+func (repo *PaymentsRepository) UpdatePaymentStatusByOrderId(orderId, status string, isPaid bool) error {
+	logrus.Info("PaymentsRepository.UpdatePayment")
+	db := db.GetInstance()
+
+	if err := db.Model(models.Payment{}).Where("rp_order_id = ?", orderId).Updates(models.Payment{
+		IsPaid: isPaid,
+		Status: status,
+	}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *PaymentsRepository) AddTransaction(transaction *models.PaymentTransaction) (*models.PaymentTransaction, error) {
+	logrus.Info("PaymentsRepository.AddTransaction")
+	db := db.GetInstance()
+
+	if err := db.Create(&transaction).Error; err != nil {
+		return nil, err
+	}
+
+	return transaction, nil
+}

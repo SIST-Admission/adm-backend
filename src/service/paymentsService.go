@@ -64,7 +64,7 @@ func (paymentsService *PaymentsService) GetOrder(userId int) (map[string]interfa
 
 	if paymentDetails != nil {
 		logrus.Info("Fetching existing order details")
-		orderDetails, err := client.Order.Fetch("order_M2GWE3C0ym5Wkz", nil, nil)
+		orderDetails, err := client.Order.Fetch(paymentDetails.RPOrderId, nil, nil)
 		if err != nil {
 			logrus.Error("Failed to fetch existing order: ", err)
 			return nil, &dto.Error{

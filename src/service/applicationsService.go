@@ -11,6 +11,7 @@ import (
 type ApplicationsService struct{}
 
 var applicationsRepository repositories.ApplicationsRepository = repositories.ApplicationsRepository{}
+var submissionsRepository repositories.SubmissionsRepository = repositories.SubmissionsRepository{}
 var applicationValidator validators.ApplicationValidator = validators.ApplicationValidator{}
 
 func (applicationsService *ApplicationsService) StartApplication(userId int, request *dto.StartApplicationRequst) (*dto.StartApplicationResponse, *dto.Error) {
@@ -158,5 +159,38 @@ func (applicationsService *ApplicationsService) SaveAcademicDetails(userId int, 
 		"code":    201,
 		"success": true,
 		"message": "Academic Details saved successfully",
+	}, nil
+}
+
+func (applicationsService *ApplicationsService) SubmitApplication(userId int, payload *dto.SubmitApplicationRequest) (map[string]interface{}, *dto.Error) {
+	logrus.Info("ApplicationsService.SubmitApplication")
+	logrus.Info("User: ", userId)
+
+	application, err := applicationsRepository.GetApplicationByUserId(userId)
+	if err != nil {
+		logrus.Error(err)
+		return nil, &dto.Error{Code: 500, Message: err.Error()}
+	}
+
+	if application == nil {
+		logrus.Error("Application does not exist for user: ", userId)
+		return nil, &dto.Error{Code: 400, Message: "Application does not exist"}
+	}
+
+	// Save Academic Details to database
+	_, err = submissionsRepository.CreateSubmission(userId, application.Id, payload)
+	if err != nil {
+		logrus.Error("Error creating submission: ", err)
+		return nil, &dto.Error{Code: 500, Message: "Internal Server Error"}
+	}
+	if err != nil {
+		logrus.Error("Error submitting application: ", err)
+		return nil, &dto.Error{Code: 500, Message: "Internal Server Error"}
+	}
+
+	return map[string]interface{}{
+		"code":    201,
+		"success": true,
+		"message": "Application submitted successfully",
 	}, nil
 }

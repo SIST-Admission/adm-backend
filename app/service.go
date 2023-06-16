@@ -86,6 +86,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 	applicationsController := controllers.ApplicationsController{}
 	userController := controllers.UserController{}
 	paymentsController := controllers.PaymentsController{}
+	batchesController := controllers.BatchesController{}
 
 	// Application Routes "/{basePath}"
 	app := engine.Group(basePath)
@@ -113,6 +114,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 			applications.POST("/start", applicationsController.StartApplication)
 			applications.POST("/basicDetails", applicationsController.SaveBasicDetails)
 			applications.POST("/academicDetails", applicationsController.SaveAcademicDetails)
+			applications.POST("/submitApplication", applicationsController.SubmitApplication)
 		}
 
 		// Documents Routes "/{basePath}/documents"
@@ -120,6 +122,13 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		documents.Use(middlewares.Auth)
 		{
 
+		}
+
+		// Documents Routes "/{basePath}/documents"
+		batches := app.Group("/batches")
+		documents.Use(middlewares.Auth)
+		{
+			batches.GET("/", batchesController.GetBatches)
 		}
 
 		// Payments Routes "/{basePath}/payments"

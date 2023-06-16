@@ -90,3 +90,22 @@ func (applicationsController *ApplicationsController) SaveAcademicDetails(c *gin
 
 	c.JSON(http.StatusCreated, resp)
 }
+
+func (applicationsController *ApplicationsController) SubmitApplication(c *gin.Context) {
+	logrus.Info("ApplicationController.SubmitApplication")
+	var request dto.SubmitApplicationRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, e := applicationsService.SubmitApplication(c.Keys["userId"].(int), &request)
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+
+	c.JSON(http.StatusCreated, resp)
+}

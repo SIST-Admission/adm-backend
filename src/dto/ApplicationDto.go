@@ -26,3 +26,12 @@ type GetApplicationResponse struct {
 	ApplicationStartDate string                  `json:"applicationStartDate"`
 	AcademicDetails      *models.AcademicDetails `json:"academicDetails"`
 }
+
+type SubmitApplicationRequest struct {
+	Submissions []Submission `json:"submissions"`
+}
+
+type Submission struct {
+	DepartmentCode string `json:"departmentCode"`
+	BatchCode      string `json:"batchCode"`
+}

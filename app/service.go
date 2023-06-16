@@ -127,6 +127,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		payments.Use(middlewares.Auth)
 		{
 			payments.POST("/getOrder", paymentsController.GetOrder)
+			payments.GET("/transactions", paymentsController.GetTransactions)
 		}
 
 		hooks := app.Group("/hooks")

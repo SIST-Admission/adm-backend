@@ -107,6 +107,7 @@ func (paymentsService *PaymentsService) GetOrder(userId int) (map[string]interfa
 		PaymentMode: "online",
 		IsPaid:      false,
 		RPOrderId:   body["id"].(string),
+		Status:      "created",
 	})
 
 	if err != nil {
@@ -152,4 +153,39 @@ func (paymentsService *PaymentsService) VerifyPayment(payload, signature string)
 	}
 
 	return nil
+}
+
+func (paymentsService *PaymentsService) GetTransactions(userId int) (*map[string]interface{}, *dto.Error) {
+	logrus.Info("PaymentsService.GetTransactions")
+	// Get Payment by user id
+	paymentDetails, err := paymentsRepository.GetPaymentByUserId(userId)
+	if err != nil {
+		logrus.Error("Failed to get payment Details: ", err)
+		return nil, &dto.Error{
+			Code:    500,
+			Message: "Failed to get payment Details",
+		}
+	}
+
+	if paymentDetails == nil {
+		return nil, &dto.Error{
+			Code:    404,
+			Message: "Payment details not found",
+		}
+	}
+
+	key := viper.GetString(viper.GetString("env") + ".razorpay.key")
+	secret := viper.GetString(viper.GetString("env") + ".razorpay.secret")
+	client := razorpay.NewClient(key, secret)
+
+	// Fetch all payments for the order
+	payments, err := client.Order.Payments(paymentDetails.RPOrderId, nil, nil)
+	if err != nil {
+		logrus.Error("Failed to fetch payments: ", err)
+		return nil, &dto.Error{
+			Code:    500,
+			Message: "Failed to fetch Transactions",
+		}
+	}
+	return &payments, nil
 }

@@ -39,3 +39,16 @@ func (paymentsController *PaymentsController) VerifyPayment(c *gin.Context) {
 		"status": "success",
 	})
 }
+
+func (paymentsController *PaymentsController) GetTransactions(c *gin.Context) {
+	logrus.Info("PaymentsController.GetPaymentDetails")
+
+	resp, e := paymentsService.GetTransactions(c.Keys["userId"].(int))
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}

@@ -6,14 +6,11 @@ import (
 	"strings"
 
 	"github.com/SIST-Admission/adm-backend/src/dto"
-	"github.com/SIST-Admission/adm-backend/src/repositories"
 	"github.com/SIST-Admission/adm-backend/src/utils"
 	"github.com/sirupsen/logrus"
 )
 
 type UserService struct{}
-
-var userRepository repositories.UserRepository = repositories.UserRepository{}
 
 func (userService *UserService) RegisterUser(request dto.RegisterUserRequest) (*dto.RegisterUserResponse, *dto.Error) {
 	logrus.Info("UserService.RegisterUser")

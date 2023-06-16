@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/SIST-Admission/adm-backend/src/service"
@@ -27,14 +28,13 @@ func (paymentsController *PaymentsController) GetOrder(c *gin.Context) {
 
 func (paymentsController *PaymentsController) VerifyPayment(c *gin.Context) {
 	logrus.Info("UserController.RegisterUser")
-	var request map[string]interface{}
-	err := c.ShouldBindJSON(&request)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	logrus.Info(request)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(c.Request.Body)
+	payload := buf.String()
+	signature := c.Request.Header.Get("x-razorpay-signature")
+	logrus.Info("Payload: ", payload)
+	logrus.Info("Signature: ", signature)
+	go paymentsService.VerifyPayment(payload, signature)
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
 	})

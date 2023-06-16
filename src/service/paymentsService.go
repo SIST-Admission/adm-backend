@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"strconv"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/SIST-Admission/adm-backend/src/models"
 	"github.com/SIST-Admission/adm-backend/src/repositories"
 	razorpay "github.com/razorpay/razorpay-go"
+	"github.com/razorpay/razorpay-go/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -15,6 +17,7 @@ import (
 type PaymentsService struct{}
 
 var paymentsRepository repositories.PaymentsRepository = repositories.PaymentsRepository{}
+var userRepository repositories.UserRepository = repositories.UserRepository{}
 
 func (paymentsService *PaymentsService) GetOrder(userId int) (map[string]interface{}, *dto.Error) {
 	logrus.Info("PaymentsService.GetOrder")
@@ -120,4 +123,25 @@ func (paymentsService *PaymentsService) GetOrder(userId int) (map[string]interfa
 	body["application_id"] = user.ApplicationId
 	body["user_id"] = userId
 	return body, nil
+}
+
+func (paymentsService *PaymentsService) VerifyPayment(payload, signature string) error {
+	logrus.Info("PaymentsService.VerifyPayment")
+	var paymentDetails map[string]interface{}
+
+	secret := viper.GetString(viper.GetString("env") + ".razorpay.secret")
+
+	// Verify Signature
+	if utils.VerifyWebhookSignature(payload, signature, secret) {
+		logrus.Info("Signature verified")
+	} else {
+		logrus.Error("Signature verification failed")
+	}
+	// Parse payload
+	if err := json.Unmarshal([]byte(payload), &paymentDetails); err != nil {
+		logrus.Error("Failed to parse payment details: ", err)
+		return err
+	}
+
+	return nil
 }

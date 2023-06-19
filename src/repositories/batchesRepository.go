@@ -2,25 +2,21 @@ package repositories
 
 import (
 	"github.com/SIST-Admission/adm-backend/src/db"
-	"github.com/SIST-Admission/adm-backend/src/dto"
 	"github.com/SIST-Admission/adm-backend/src/models"
 	"github.com/sirupsen/logrus"
 )
 
 type BatchesRepository struct{}
 
-func (repo *BatchesRepository) GetBatches() ([]models.Batch, *dto.Error) {
+func (repo *BatchesRepository) GetBatches(year int) ([]models.Batch, error) {
 	logrus.Info("BatchesRepository.GetBatches")
 
 	db := db.GetInstance()
 
 	var batches []models.Batch
-	if err := db.Preload("Department").Find(&batches).Error; err != nil {
+	if err := db.Model(models.Batch{}).Preload("Department").Where("start_year = ?", year).Find(&batches).Error; err != nil {
 		logrus.Error("Failed to get batches: ", err)
-		return nil, &dto.Error{
-			Code:    500,
-			Message: "Failed to get batches",
-		}
+		return nil, err
 	}
 
 	return batches, nil

@@ -29,5 +29,10 @@ func (repo *SubmissionsRepository) CreateSubmission(userId, appId int, payload *
 		}
 	}
 
+	if err := db.Model(models.Application{}).Where("id = ?", appId).Update("status", "SUBMITTED").Error; err != nil {
+		logrus.Error("Failed to update application status: ", err)
+		return nil, err
+	}
+
 	return nil, nil
 }

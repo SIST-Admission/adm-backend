@@ -25,6 +25,7 @@ type GetApplicationResponse struct {
 	BasicDetails         *models.BasicDetails    `json:"basicDetails"`
 	ApplicationStartDate string                  `json:"applicationStartDate"`
 	AcademicDetails      *models.AcademicDetails `json:"academicDetails"`
+	PaymentDetails       *models.Payment         `json:"paymentDetails"`
 }
 
 type SubmitApplicationRequest struct {

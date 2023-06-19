@@ -124,11 +124,10 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 
 		}
 
-		// Documents Routes "/{basePath}/documents"
 		batches := app.Group("/batches")
-		documents.Use(middlewares.Auth)
+		batches.Use(middlewares.Auth)
 		{
-			batches.GET("/", batchesController.GetBatches)
+			batches.GET("/getAllBatches", batchesController.GetBatches)
 		}
 
 		// Payments Routes "/{basePath}/payments"

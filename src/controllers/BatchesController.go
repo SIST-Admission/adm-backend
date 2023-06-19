@@ -13,14 +13,14 @@ type BatchesController struct{}
 var batchesService service.BatchesService = service.BatchesService{}
 
 func (batchesController *BatchesController) GetBatches(c *gin.Context) {
-	logrus.Info("BatchesController.GetBatches")
+	logrus.Info("ApplicationsController.RegisterRoutes")
 
-	resp, e := batchesService.GetBatches()
+	resp, e := batchesService.GetBatches(c.Keys["userId"].(int))
 	if e != nil {
 		logrus.Error(e.Message)
 		c.JSON(e.Code, e)
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusCreated, resp)
 }

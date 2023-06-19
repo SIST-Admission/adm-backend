@@ -15,7 +15,6 @@ type AcademicDetails struct {
 	ClassXDetails    *School  `gorm:"foreignKey:class_10_school_id;AssociationForeignKey:id" json:"classXDetails"`
 	ClassXIIDetails  *School  `gorm:"foreignKey:class_12_school_id;AssociationForeignKey:id" json:"classXIIDetails"`
 	DiplomaDetails   *Diploma `gorm:"foreignKey:diploma_id;AssociationForeignKey:id" json:"diplomaDetails"`
-	PaymentId        int      `gorm:"column:payment_id" json:"paymentId"`
 }
 
 func (AcademicDetails) TableName() string {

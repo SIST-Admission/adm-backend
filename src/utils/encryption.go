@@ -24,7 +24,7 @@ func GenerateJwt(payload map[string]interface{}) (string, error) {
 	for key, value := range payload {
 		claims[key] = value.(string)
 	}
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	return token.SignedString([]byte(viper.GetString("jwtSecret")))
 }

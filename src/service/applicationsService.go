@@ -130,6 +130,7 @@ func (applicationsService *ApplicationsService) GetApplication(userId int) (*dto
 		BasicDetails:         applicationDetails.BasicDetails,
 		ApplicationStartDate: applicationDetails.ApplicationStartDate,
 		AcademicDetails:      applicationDetails.AcademicDetails,
+		PaymentDetails:       applicationDetails.PaymentDetails,
 	}, nil
 }
 

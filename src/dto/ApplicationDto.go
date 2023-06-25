@@ -26,6 +26,7 @@ type GetApplicationResponse struct {
 	ApplicationStartDate string                  `json:"applicationStartDate"`
 	AcademicDetails      *models.AcademicDetails `json:"academicDetails"`
 	PaymentDetails       *models.Payment         `json:"paymentDetails"`
+	Submissions          *[]models.Submission    `json:"submissions"`
 }
 
 type SubmitApplicationRequest struct {
@@ -35,4 +36,22 @@ type SubmitApplicationRequest struct {
 type Submission struct {
 	DepartmentCode string `json:"departmentCode"`
 	BatchCode      string `json:"batchCode"`
+}
+
+type GetAllApplicationsRequest struct {
+	Status string `json:"status"`
+}
+
+type Application struct {
+	Id              int                  `json:"id"`
+	ApplicationType string               `json:"applicationType"`
+	Status          string               `json:"status"`
+	BasicDetails    *models.BasicDetails `json:"basicDetails"`
+}
+
+type GetAllApplicationsResponse []Application
+
+type UpdateApplicationRequest struct {
+	Id     int    `json:"id"`
+	Status string `json:"status"`
 }

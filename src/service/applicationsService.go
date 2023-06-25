@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strconv"
+
 	"github.com/SIST-Admission/adm-backend/src/dto"
 	"github.com/SIST-Admission/adm-backend/src/models"
 	"github.com/SIST-Admission/adm-backend/src/repositories"
@@ -100,24 +102,18 @@ func (applicationsService *ApplicationsService) SaveBasicDetails(userId int, req
 	}, nil
 }
 
-func (applicationsService *ApplicationsService) GetApplication(userId int) (*dto.GetApplicationResponse, *dto.Error) {
+func (applicationsService *ApplicationsService) GetApplication(appId string) (*dto.GetApplicationResponse, *dto.Error) {
 	logrus.Info("ApplicationsService.GetApplication")
-	logrus.Info("User: ", userId)
+	logrus.Info("Application: ", appId)
 
-	// TODO: Get application from database
-	application, err := applicationsRepository.GetApplicationByUserId(userId)
+	applicationId, err := strconv.Atoi(appId)
 	if err != nil {
 		logrus.Error(err)
-		return nil, &dto.Error{Code: 500, Message: err.Error()}
-	}
-
-	if application == nil {
-		logrus.Error("Application does not exist for user: ", userId)
-		return nil, &dto.Error{Code: 400, Message: "Application does not exist"}
+		return nil, &dto.Error{Code: 400, Message: "Invalid Application Id"}
 	}
 
 	// Get Application Details and Basic Details from database
-	applicationDetails, err := applicationsRepository.GetApplicationDetails(application.Id)
+	applicationDetails, err := applicationsRepository.GetApplicationDetails(applicationId)
 	if err != nil {
 		logrus.Error(err)
 		return nil, &dto.Error{Code: 500, Message: err.Error()}
@@ -131,6 +127,7 @@ func (applicationsService *ApplicationsService) GetApplication(userId int) (*dto
 		ApplicationStartDate: applicationDetails.ApplicationStartDate,
 		AcademicDetails:      applicationDetails.AcademicDetails,
 		PaymentDetails:       applicationDetails.PaymentDetails,
+		Submissions:          &applicationDetails.Submissions,
 	}, nil
 }
 
@@ -193,5 +190,53 @@ func (applicationsService *ApplicationsService) SubmitApplication(userId int, pa
 		"code":    201,
 		"success": true,
 		"message": "Application submitted successfully",
+	}, nil
+}
+
+func (applicationsService *ApplicationsService) GetAllApplications(req *dto.GetAllApplicationsRequest) ([]*models.Application, *dto.Error) {
+	logrus.Info("ApplicationsService.GetAllApplications:", req.Status)
+	applications, err := applicationsRepository.GetAllApplications(req)
+	if err != nil {
+		logrus.Error("Error getting all applications: ", err)
+		return nil, &dto.Error{Code: 500, Message: err.Error()}
+	}
+	if applications == nil {
+		applications = []*models.Application{}
+	}
+	return applications, nil
+}
+
+func (applicationsService *ApplicationsService) UpdateDocumentStatus(doc *dto.UpdateDocumentStatusRequest) (*map[string]interface{}, *dto.Error) {
+	logrus.Info("ApplicationsService.UpdateDocumentStatus")
+	err := applicationsRepository.UpdateDocumentStatus(doc)
+	if err != nil {
+		logrus.Error("Error updating document status: ", err)
+		return nil, err
+	}
+
+	return &map[string]interface{}{
+		"code":       200,
+		"success":    true,
+		"message":    "Document status updated successfully",
+		"documentId": doc.DocumentId,
+		"status":     doc.Status,
+		"isVerified": doc.IsVerified,
+	}, nil
+}
+
+func (applicationsService *ApplicationsService) UpdateApplicationStatus(req *dto.UpdateApplicationRequest) (*map[string]interface{}, *dto.Error) {
+	logrus.Info("ApplicationsService.UpdateApplicationStatus")
+	err := applicationsRepository.UpdateApplicationStatus(req)
+	if err != nil {
+		logrus.Error("Error updating application status: ", err)
+		return nil, err
+	}
+
+	return &map[string]interface{}{
+		"code":    200,
+		"success": true,
+		"message": "Application status updated successfully",
+		"status":  req.Status,
+		"id":      req.Id,
 	}, nil
 }

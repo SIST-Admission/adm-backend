@@ -8,6 +8,7 @@ type Document struct {
 	FileUrl      string `gorm:"column:file_url" json:"file_url"`
 	UserID       int    `gorm:"column:user_id" json:"user_id"`
 	IsVerified   bool   `gorm:"column:is_verified" json:"is_verified"`
+	Status       string `gorm:"column:status" json:"status"`
 }
 
 func (Document) TableName() string {

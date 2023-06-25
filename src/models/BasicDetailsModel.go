@@ -3,6 +3,8 @@ package models
 type BasicDetails struct {
 	Id                  int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`
 	Name                string    `gorm:"column:name" json:"name"`
+	Email               string    `gorm:"column:email" json:"email"`
+	Phone               string    `gorm:"column:phone" json:"phone"`
 	DoB                 string    `gorm:"column:dob" json:"dob"`
 	Gender              string    `gorm:"column:gender" json:"gender"`
 	Category            string    `gorm:"column:category" json:"category"`

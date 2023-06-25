@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/SIST-Admission/adm-backend/src/db"
@@ -115,6 +116,8 @@ func (repo *ApplicationsRepository) SaveBasicDetails(userId, appId int, payload 
 	basicDetails := models.BasicDetails{
 		Name:                payload.Name,
 		DoB:                 payload.DoB, // Accepted format: "YYYY-MM-DD"
+		Email:               payload.Email,
+		Phone:               payload.Phone,
 		Gender:              payload.Gender,
 		Category:            payload.Category,
 		IsCoI:               payload.IsCoI,
@@ -200,6 +203,8 @@ func (repo *ApplicationsRepository) UpdateBasicDetails(userId, basicDetailsId in
 	var basicDetails models.BasicDetails = models.BasicDetails{
 		Name:                payload.Name,
 		DoB:                 payload.DoB, // Accepted format: "YYYY-MM-DD"
+		Email:               payload.Email,
+		Phone:               payload.Phone,
 		Gender:              payload.Gender,
 		Category:            payload.Category,
 		IsCoI:               payload.IsCoI,
@@ -239,6 +244,7 @@ func (repo *ApplicationsRepository) GetApplicationDetails(appId int) (*models.Ap
 		Preload("AcademicDetails.ClassXDetails").Preload("AcademicDetails.ClassXDetails.MarksheetDocument").
 		Preload("AcademicDetails.ClassXIIDetails").Preload("AcademicDetails.ClassXIIDetails.MarksheetDocument").
 		Preload("AcademicDetails.DiplomaDetails").Preload("AcademicDetails.DiplomaDetails.MarksheetDocument").
+		Preload("Submissions").
 		Preload("PaymentDetails").
 		First(&application).Error; err != nil {
 		logrus.Error("ApplicationsRepository.GetApplicationDetails: ", err)
@@ -408,5 +414,61 @@ func (repo *ApplicationsRepository) SaveAcademicDetails(userId, appId int, reque
 		return err
 	}
 
+	return nil
+}
+
+func (repo *ApplicationsRepository) GetAllApplications(p *dto.GetAllApplicationsRequest) ([]*models.Application, error) {
+	logrus.Info("ApplicationsRepository.GetAllApplications: ", p.Status)
+	var applications []*models.Application
+	db := db.GetInstance()
+
+	if p.Status != "" {
+		if err := db.Model(models.Application{}).
+			Preload("Submissions").
+			Preload("BasicDetails").
+			Preload("BasicDetails.PhotoDocument").
+			Where("status = ?", p.Status).
+			Find(&applications).Error; err != nil {
+			logrus.Error("ApplicationsRepository.GetAllApplications: ", err)
+			return nil, err
+		}
+	} else {
+		if err := db.Model(models.Application{}).
+			Preload("Submissions").
+			Preload("BasicDetails").
+			Preload("BasicDetails.PhotoDocument").
+			Where("status != ?", "DRAFT").
+			Find(&applications).Error; err != nil {
+			logrus.Error("ApplicationsRepository.GetAllApplications: ", err)
+			return nil, err
+		}
+	}
+
+	return applications, nil
+}
+
+func (repo *ApplicationsRepository) UpdateDocumentStatus(req *dto.UpdateDocumentStatusRequest) *dto.Error {
+	logrus.Info("ApplicationsRepository.UpdateDocumentStatus: ")
+	db := db.GetInstance()
+	if err := db.Model(models.Document{}).Where("id = ?", req.DocumentId).Updates(models.Document{IsVerified: req.IsVerified, Status: req.Status}).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateDocumentStatus: ", err)
+		return &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error updating document status",
+		}
+	}
+	return nil
+}
+
+func (repo *ApplicationsRepository) UpdateApplicationStatus(req *dto.UpdateApplicationRequest) *dto.Error {
+	logrus.Info("ApplicationsRepository.UpdateApplicationStatus: ")
+	db := db.GetInstance()
+	if err := db.Model(models.Application{}).Where("id = ?", req.Id).Updates(models.Application{Status: req.Status}).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error updating application status",
+		}
+	}
 	return nil
 }

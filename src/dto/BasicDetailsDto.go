@@ -2,6 +2,8 @@ package dto
 
 type SaveBasicDetailsRequest struct {
 	Name                     string `json:"name"`
+	Email                    string `json:"email"`
+	Phone                    string `json:"phone"`
 	DoB                      string `json:"dob"`
 	Gender                   string `json:"gender"`
 	Category                 string `json:"category"`

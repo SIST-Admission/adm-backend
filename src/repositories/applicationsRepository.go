@@ -130,6 +130,7 @@ func (repo *ApplicationsRepository) SaveBasicDetails(userId, appId int, payload 
 		IdentityDocumentId:  identityDocument.Id,
 		PhotoDocumentId:     photoDocument.Id,
 		SignatureDocumentId: signatureDocument.Id,
+		Address:             payload.Address,
 	}
 
 	if err := tx.Model(models.BasicDetails{}).Save(&basicDetails).Error; err != nil {
@@ -217,6 +218,7 @@ func (repo *ApplicationsRepository) UpdateBasicDetails(userId, basicDetailsId in
 		IdentityDocumentId:  identityDocument.Id,
 		PhotoDocumentId:     photoDocument.Id,
 		SignatureDocumentId: signatureDocument.Id,
+		Address:             payload.Address,
 	}
 
 	if err := tx.Model(models.BasicDetails{}).Where("id = ?", basicDetailsId).Updates(basicDetails).Error; err != nil {
@@ -245,6 +247,7 @@ func (repo *ApplicationsRepository) GetApplicationDetails(appId int) (*models.Ap
 		Preload("AcademicDetails.ClassXIIDetails").Preload("AcademicDetails.ClassXIIDetails.MarksheetDocument").
 		Preload("AcademicDetails.DiplomaDetails").Preload("AcademicDetails.DiplomaDetails.MarksheetDocument").
 		Preload("Submissions").
+		Preload("Submissions.MeritList").
 		Preload("PaymentDetails").
 		First(&application).Error; err != nil {
 		logrus.Error("ApplicationsRepository.GetApplicationDetails: ", err)

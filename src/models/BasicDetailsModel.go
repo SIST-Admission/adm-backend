@@ -13,6 +13,7 @@ type BasicDetails struct {
 	FatherName          string    `gorm:"column:father_name" json:"fatherName"`
 	MotherName          string    `gorm:"column:mother_name" json:"motherName"`
 	Nationality         string    `gorm:"column:nationality" json:"nationality"`
+	Address             string    `gorm:"column:address" json:"address"`
 	IdentityType        string    `gorm:"column:identity_type" json:"identityType"`
 	IdentityNumber      string    `gorm:"column:identity_number" json:"identityNumber"`
 	IdentityDocumentId  int       `gorm:"column:identity_document_id" json:"identityDocumentId"`

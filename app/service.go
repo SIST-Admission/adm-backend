@@ -87,6 +87,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 	userController := controllers.UserController{}
 	paymentsController := controllers.PaymentsController{}
 	batchesController := controllers.BatchesController{}
+	meritListsController := controllers.MeritListsController{}
 
 	// Application Routes "/{basePath}"
 	app := engine.Group(basePath)
@@ -122,10 +123,13 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		}
 
 		// Documents Routes "/{basePath}/documents"
-		documents := app.Group("/documents")
-		documents.Use(middlewares.Auth)
+		meritList := app.Group("/meritLists")
+		meritList.Use(middlewares.Auth, middlewares.AdminAuth)
 		{
-
+			meritList.POST("/", meritListsController.CreateMeritList)
+			meritList.POST("/addStudent", meritListsController.AddStudents)
+			meritList.POST("/getAllMeritLists", meritListsController.GetAllMeritLists)
+			meritList.POST("/getUnListedCandidates", meritListsController.GetUnListedCandidates)
 		}
 
 		batches := app.Group("/batches")

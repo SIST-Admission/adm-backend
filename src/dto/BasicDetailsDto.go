@@ -23,6 +23,7 @@ type SaveBasicDetailsRequest struct {
 	SignatureKey             string `json:"signatureKey"`
 	SignatureMimeType        string `json:"signatureMimeType"`
 	SignatureUrl             string `json:"signatureUrl"`
+	Address                  string `json:"address"`
 }
 
 type SaveBasicDetailsResponse struct {

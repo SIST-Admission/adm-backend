@@ -88,3 +88,22 @@ func (MeritListsController *MeritListsController) GetUnListedCandidates(c *gin.C
 
 	c.JSON(http.StatusOK, resp)
 }
+
+func (MeritListsController *MeritListsController) GetListedCandidates(c *gin.Context) {
+	logrus.Info("MeritListsController.GetListedCandidates")
+	var request dto.GetListedCandidatesRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, e := meritListService.GetListedCandidates(&request)
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}

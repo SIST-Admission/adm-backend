@@ -21,6 +21,18 @@ func (meritListService *MeritListService) CreateMeritList(request *dto.CreateMer
 			Message: "Failed to create merit list",
 		}
 	}
+
+	if err = meritListRepo.AddStudents(&dto.AddStudentsToMeritListRequest{
+		SubmissionIds: request.SubmissionIds,
+		MeritListId:   meritList.Id,
+	}); err != nil {
+		logrus.Error("Failed to add students to merit list: ", err)
+		return nil, &dto.Error{
+			Code:    500,
+			Message: "Failed to add students to merit list",
+		}
+	}
+
 	return meritList, nil
 }
 
@@ -57,6 +69,19 @@ func (meritListService *MeritListService) GetAllMeritLists(request *dto.GetAllMe
 func (meritListService *MeritListService) GetUnListedCandidates(request *dto.GetUnListedCandidatesRequest) (*[]models.Submission, *dto.Error) {
 	logrus.Info("MeritListService.GetAllMeritLists")
 	meritLists, err := meritListRepo.GetUnListedCandidatesRequest(request)
+	if err != nil {
+		logrus.Error("Failed to get merit lists: ", err)
+		return nil, &dto.Error{
+			Code:    500,
+			Message: "Failed to get merit lists",
+		}
+	}
+	return meritLists, nil
+}
+
+func (meritListService *MeritListService) GetListedCandidates(request *dto.GetListedCandidatesRequest) (*dto.GetListedCandidatesResponse, *dto.Error) {
+	logrus.Info("MeritListService.GetListedCandidates")
+	meritLists, err := meritListRepo.GetListedCandidates(request)
 	if err != nil {
 		logrus.Error("Failed to get merit lists: ", err)
 		return nil, &dto.Error{

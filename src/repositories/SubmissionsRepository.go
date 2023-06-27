@@ -36,3 +36,46 @@ func (repo *SubmissionsRepository) CreateSubmission(userId, appId int, payload *
 
 	return nil, nil
 }
+
+func (repo *SubmissionsRepository) GetPaymentBySubmissionId(id int) (*models.Submission, *dto.Error) {
+	logrus.Info("SubmissionsRepository.GetPaymentBySubmissionId")
+	db := db.GetInstance()
+	var submission *models.Submission
+	if err := db.Model(models.Submission{}).Preload("Payment").Preload("BatchDetails").Preload("DepartmentDetails").Preload("Application").Preload("Application.BasicDetails").Preload("Application.BasicDetails.PhotoDocument").Where("id = ?", id).First(&submission).Error; err != nil {
+		logrus.Error("Failed to get payment id: ", err)
+		return nil, &dto.Error{
+			Code:    500,
+			Message: "Failed to get payment id",
+		}
+	}
+
+	if submission == nil {
+		logrus.Error("Submission not found")
+		return nil, &dto.Error{
+			Code:    404,
+			Message: "Submission not found",
+		}
+	}
+
+	if submission.PaymentId == nil {
+		logrus.Error("Payment not found")
+		return nil, nil
+	}
+
+	return submission, nil
+}
+
+func (repo *SubmissionsRepository) UpdateSubmissionStatus(submissionId int, status string) error {
+	logrus.Info("SubmissionsRepository.UpdateSubmissionStatus")
+	db := db.GetInstance()
+	if status == "captured" {
+		if err := db.Model(models.Submission{}).Where("id = ?", submissionId).Update("is_admitted", true).Error; err != nil {
+			logrus.Error("Failed to update submission status: ", err)
+			return err
+		}
+	} else {
+		logrus.Info("SubmissionsRepository.UpdateSubmissionStatus:", "status is not captured")
+	}
+
+	return nil
+}

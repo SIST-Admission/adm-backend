@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/SIST-Admission/adm-backend/src/dto"
@@ -125,6 +126,64 @@ func (paymentsService *PaymentsService) GetOrder(userId int) (map[string]interfa
 	return body, nil
 }
 
+func (paymentsService *PaymentsService) GetAdmissionOrder(req *dto.GetAdmissionOrderRequest) (*models.Submission, *dto.Error) {
+	logrus.Info("PaymentsService.GetAdmissionOrder")
+	logrus.Info("Submission ID: ", req.SubmissionId)
+	// Get Payment By Submission Id
+	submission, err := submissionsRepository.GetPaymentBySubmissionId(req.SubmissionId)
+	if err != nil {
+		logrus.Error("Failed to get payment details: ", err)
+		return nil, err
+	}
+	if submission != nil {
+		return submission, nil
+	} else {
+		// Create new order
+		// Order Details Doesn't exist, create new order
+		amount := 1000
+		data := map[string]interface{}{
+			"amount":          amount * 100,
+			"currency":        "INR",
+			"receipt":         "admission_fee_" + strconv.Itoa(req.SubmissionId) + strconv.Itoa(int(time.Now().Unix())),
+			"partial_payment": false,
+			"notes": map[string]interface{}{
+				"submission_id": req.SubmissionId,
+			},
+		}
+
+		key := viper.GetString(viper.GetString("env") + ".razorpay.key")
+		secret := viper.GetString(viper.GetString("env") + ".razorpay.secret")
+		client := razorpay.NewClient(key, secret)
+		body, err := client.Order.Create(data, nil)
+		if err != nil {
+			logrus.Error("Failed to create order: ", err)
+			return nil, &dto.Error{
+				Code:    500,
+				Message: "Failed to create order",
+			}
+		}
+		_, err = paymentsRepository.CreateAdmissionPayment(req.SubmissionId, &models.Payment{
+			Amount:      body["amount"].(float64),
+			PaymentDate: time.Now().Format("2006-01-02 15:04:05"),
+			PaymentMode: "online",
+			IsPaid:      false,
+			RPOrderId:   body["id"].(string),
+			Status:      "created",
+		})
+
+		if err != nil {
+			logrus.Error("Failed to create payment: ", err)
+			return nil, &dto.Error{
+				Code:    500,
+				Message: "Failed to create payment",
+			}
+		}
+
+	}
+
+	return submissionsRepository.GetPaymentBySubmissionId(req.SubmissionId)
+}
+
 func (paymentsService *PaymentsService) VerifyPayment(payload, signature string) error {
 	logrus.Info("PaymentsService.VerifyPayment")
 	var paymentDetails map[string]interface{}
@@ -144,12 +203,23 @@ func (paymentsService *PaymentsService) VerifyPayment(payload, signature string)
 
 	captured := entity["captured"].(bool)
 	status := entity["status"].(string)
-
+	description := entity["description"].(string)
+	logrus.Info("Description: ", description)
 	// Update payment details
 	orderId := entity["order_id"].(string)
 	if err := paymentsRepository.UpdatePaymentStatusByOrderId(orderId, status, captured); err != nil {
 		logrus.Error("Failed to update payment status: ", err)
 		return err
+	}
+
+	if strings.Contains(strings.ToLower(description), "admission") {
+		logrus.Info("Admission Payment Detected")
+		// Update submission status
+		submissionId := int(entity["notes"].(map[string]interface{})["submission_id"].(float64))
+		if err := submissionsRepository.UpdateSubmissionStatus(submissionId, status); err != nil {
+			logrus.Error("Failed to update submission status: ", err)
+			return err
+		}
 	}
 
 	return nil

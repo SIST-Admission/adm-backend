@@ -13,9 +13,15 @@ func (repo *MeritListRepository) CreateMeritList(p *dto.CreateMeritListRequest) 
 	logrus.Info("MeritListRepository.CreateMeritList")
 	db := db.GetInstance()
 
+	var batch models.Batch
+	if err := db.Model(models.Batch{}).Where("department_code = ? and start_year = ?", p.DepartmentCode, p.Year).First(&batch).Error; err != nil {
+		logrus.Error("Failed to get batch: ", err)
+		return nil, err
+	}
+
 	meritList := models.MeritList{
+		BatchCode:       batch.BatchCode,
 		DepartmentCode:  p.DepartmentCode,
-		BatchCode:       p.BatchCode,
 		PublishedDate:   p.PublishedDate,
 		LastPaymentDate: p.LastPaymentDate,
 		IsPublished:     p.IsPublished,
@@ -97,4 +103,31 @@ func (repo *MeritListRepository) GetUnListedCandidatesRequest(p *dto.GetUnListed
 		}
 	}
 	return &filteredSubmissions, nil
+}
+
+func (repo *MeritListRepository) GetListedCandidates(p *dto.GetListedCandidatesRequest) (*dto.GetListedCandidatesResponse, *dto.Error) {
+	logrus.Info("MeritListRepository.GetListedCandidates")
+	db := db.GetInstance()
+	// Response
+	var response dto.GetListedCandidatesResponse
+	// Get Merit List Details using listId
+	var meritList *models.MeritList
+	if err := db.Model(models.MeritList{}).Preload("Department").Preload("Batch").Where("id = ?", p.MeritListId).First(&meritList).Error; err != nil {
+		logrus.Error("Failed to get merit list: ", err)
+		return nil, &dto.Error{Code: 500, Message: "Failed to get merit list"}
+	}
+	response.MeritListDetails = meritList
+
+	// Get All Submissions of the merit list
+	var submissions []*models.Submission
+	if err := db.Model(models.Submission{}).Where("merit_list_id = ?", p.MeritListId).
+		Preload("Application", "status = 'APPROVED'").Preload("Application.BasicDetails").Preload("Application.BasicDetails.PhotoDocument").
+		Preload("Application.AcademicDetails").Preload("Application.AcademicDetails.ClassXIIDetails").Preload("Application.AcademicDetails.DiplomaDetails").
+		Find(&submissions).Error; err != nil {
+		logrus.Error("Failed to get submissions: ", err)
+		return nil, &dto.Error{Code: 500, Message: "Failed to get submissions"}
+	}
+
+	response.Submissions = submissions
+	return &response, nil
 }

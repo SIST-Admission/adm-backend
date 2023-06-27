@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 
+	"github.com/SIST-Admission/adm-backend/src/dto"
 	"github.com/SIST-Admission/adm-backend/src/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -24,6 +25,24 @@ func (paymentsController *PaymentsController) GetOrder(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, resp)
+}
+func (paymentsController *PaymentsController) GetAdmissionOrder(c *gin.Context) {
+	logrus.Info("PaymentsController.GetAdmissionOrder")
+	var request dto.GetAdmissionOrderRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, e := paymentsService.GetAdmissionOrder(&request)
+	if e != nil {
+		logrus.Error(e)
+		c.JSON(e.Code, e)
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func (paymentsController *PaymentsController) VerifyPayment(c *gin.Context) {

@@ -48,6 +48,21 @@ func (repo *PaymentsRepository) CreatePayment(applicationId int, payment *models
 	return payment, nil
 }
 
+func (repo *PaymentsRepository) CreateAdmissionPayment(submissionId int, payment *models.Payment) (*models.Payment, error) {
+	logrus.Info("PaymentsRepository.CreatePayment")
+	db := db.GetInstance()
+
+	if err := db.Create(&payment).Error; err != nil {
+		return nil, err
+	}
+	err := db.Model(&models.Submission{}).Where("id = ?", submissionId).Update("payment_id", payment.Id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return payment, nil
+}
+
 func (repo *PaymentsRepository) AddPaymentToApplication(appId, paymentId int) error {
 	logrus.Info("PaymentsRepository.AddPaymentToApplication")
 	logrus.Info("Application Id: ", appId)

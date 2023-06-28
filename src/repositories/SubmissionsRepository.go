@@ -37,6 +37,18 @@ func (repo *SubmissionsRepository) CreateSubmission(userId, appId int, payload *
 	return nil, nil
 }
 
+func (repo *SubmissionsRepository) GetSubmissionById(submissionId int) (models.Submission, *error) {
+	logrus.Info("SubmissionsRepository.GetBasicDetailsBySubmissionId")
+	db := db.GetInstance()
+	var submission models.Submission
+	if err := db.Model(models.Submission{}).Where("id = ?", submissionId).Preload("Application").Preload("Application.BasicDetails").First(&submission).Error; err != nil {
+		logrus.Error("Failed to get basic details by submission id: ", err)
+		return models.Submission{}, &err
+	}
+
+	return submission, nil
+}
+
 func (repo *SubmissionsRepository) GetPaymentBySubmissionId(id int) (*models.Submission, *dto.Error) {
 	logrus.Info("SubmissionsRepository.GetPaymentBySubmissionId")
 	db := db.GetInstance()

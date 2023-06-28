@@ -111,6 +111,7 @@ func loadRoutes(engine *gin.Engine, basePath string) {
 		applications := app.Group("/applications")
 		applications.Use(middlewares.Auth)
 		{
+			applications.GET("/stats", applicationsController.GetApplicationStats)
 			applications.POST("getAllApplications", applicationsController.GetAppApplications)
 			applications.GET("/:appId", applicationsController.GetApplication)
 			applications.GET("/getApplicationByUser", applicationsController.GetApplicationByUser)

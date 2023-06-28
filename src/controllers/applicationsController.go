@@ -199,3 +199,15 @@ func (applicationsController *ApplicationsController) UpdateApplicationStatus(c 
 
 	c.JSON(http.StatusOK, resp)
 }
+
+func (applicationsController *ApplicationsController) GetApplicationStats(c *gin.Context) {
+	logrus.Info("ApplicationController.GetApplicationStats")
+
+	resp, e := applicationsService.GetApplicationStats()
+	if e != nil {
+		logrus.Error(e.Message)
+		c.JSON(e.Code, e)
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}

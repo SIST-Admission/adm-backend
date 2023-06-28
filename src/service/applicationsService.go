@@ -240,3 +240,14 @@ func (applicationsService *ApplicationsService) UpdateApplicationStatus(req *dto
 		"id":      req.Id,
 	}, nil
 }
+
+func (applicationsService *ApplicationsService) GetApplicationStats() (*map[string]interface{}, *dto.Error) {
+	logrus.Info("ApplicationsService.GetApplicationStats")
+	stats, err := applicationsRepository.GetApplicationStats()
+	if err != nil {
+		logrus.Error("Error getting application stats: ", err)
+		return nil, err
+	}
+
+	return stats, nil
+}

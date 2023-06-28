@@ -475,3 +475,177 @@ func (repo *ApplicationsRepository) UpdateApplicationStatus(req *dto.UpdateAppli
 	}
 	return nil
 }
+
+func (repo *ApplicationsRepository) GetApplicationStats() (*map[string]interface{}, *dto.Error) {
+	db := db.GetInstance()
+	var pendingApplications int64
+	var approvedApplications int64
+	var rejectedApplications int64
+	var fesherApplications int64
+	var lateralApplications int64
+
+	if err := db.Model(models.Application{}).Where("status = ?", "SUBMITTED").Count(&pendingApplications).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	if err := db.Model(models.Application{}).Where("status = ?", "APPROVED").Count(&approvedApplications).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	if err := db.Model(models.Application{}).Where("status = ?", "REJECTED").Count(&rejectedApplications).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	if err := db.Model(models.Application{}).Where("application_type = ?", "FRESHER").Count(&fesherApplications).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	if err := db.Model(models.Application{}).Where("application_type = ?", "LATERAL").Count(&lateralApplications).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	var admittedStudents int64
+	var cseAdmittedStudents int64
+	var cvlAdmittedStudents int64
+	var totalSubmissions int64
+
+	if err := db.Model(models.Submission{}).Count(&totalSubmissions).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	if err := db.Model(models.Submission{}).Where("is_admitted = ?", true).Count(&admittedStudents).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	if err := db.Model(models.Submission{}).Where("is_admitted = ? AND department_code = ?", true, "CSE").Count(&cseAdmittedStudents).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	if err := db.Model(models.Submission{}).Where("is_admitted = ? AND department_code = ?", true, "CVL").Count(&cvlAdmittedStudents).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding application status",
+		}
+	}
+
+	var csePendingAdmissions int64
+	var cvlPendingAdmissions int64
+	if err := db.Model(models.Submission{}).Where("is_admitted = ? AND department_code = ? and merit_list_id is not null", false, "CSE").Count(&csePendingAdmissions).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding cse pending admissions",
+		}
+	}
+
+	if err := db.Model(models.Submission{}).Where("is_admitted = ? AND department_code = ? and merit_list_id is not null", false, "CVL").Count(&cvlPendingAdmissions).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error Finding cvl pending admissions",
+		}
+	}
+
+	var totalMeritList int64
+	var cseMeritList int64
+	var cvlMeritList int64
+	var totalCseListedCandidates int64
+	var totalCvlListedCandidates int64
+
+	if err := db.Model(models.MeritList{}).Count(&totalMeritList).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error counting total merit list",
+		}
+	}
+
+	if err := db.Model(models.MeritList{}).Where("department_code = ?", "CSE").Count(&cseMeritList).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error counting cse merit list",
+		}
+	}
+
+	if err := db.Model(models.MeritList{}).Where("department_code = ?", "CVL").Count(&cvlMeritList).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "error counting cvl merit list",
+		}
+	}
+
+	if err := db.Model(models.Submission{}).Where("department_code = ? AND merit_list_id is not null", "CSE").Count(&totalCseListedCandidates).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "error counting total cse listed candidates",
+		}
+	}
+
+	if err := db.Model(models.Submission{}).Where("department_code = ? AND merit_list_id is not null", "CVL").Count(&totalCvlListedCandidates).Error; err != nil {
+		logrus.Error("ApplicationsRepository.UpdateApplicationStatus: ", err)
+		return nil, &dto.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "error counting total cvl listed candidates",
+		}
+	}
+
+	var totalCseAdmittedCandidates int64
+
+	var resp = map[string]interface{}{
+		"pending_applications":  pendingApplications,
+		"approved_applications": approvedApplications,
+		"rejected_applications": rejectedApplications,
+		"fresh_applications":    fesherApplications,
+		"lateral_applications":  lateralApplications,
+		"total_submissions":     totalSubmissions,
+		"total_admitted":        admittedStudents,
+		"cse_admitted":          cseAdmittedStudents,
+		"cvl_admitted":          cvlAdmittedStudents,
+		"cse_pending_admission": csePendingAdmissions,
+		"cvl_pending_admission": cvlPendingAdmissions,
+		"total_merit_list":      totalMeritList,
+		"cse_merit_list":        cseMeritList,
+		"cvl_merit_list":        cvlMeritList,
+		"cse_listed":            totalCseListedCandidates,
+		"cvl_listed":            totalCvlListedCandidates,
+		"cse_admitted_list":     totalCseAdmittedCandidates,
+	}
+
+	return &resp, nil
+}

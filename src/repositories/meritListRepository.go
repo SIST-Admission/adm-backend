@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"sync"
+
 	"github.com/SIST-Admission/adm-backend/src/db"
 	"github.com/SIST-Admission/adm-backend/src/dto"
 	"github.com/SIST-Admission/adm-backend/src/models"
@@ -39,13 +41,19 @@ func (repo *MeritListRepository) AddStudents(p *dto.AddStudentsToMeritListReques
 	logrus.Info("MeritListRepository.AddStudents")
 
 	db := db.GetInstance()
-
+	wg := sync.WaitGroup{}
 	for _, sId := range p.SubmissionIds {
 		if err := db.Model(models.Submission{}).Where("id = ?", sId).Update("merit_list_id", p.MeritListId).Error; err != nil {
 			logrus.Error("Failed to add student to merit list: ", err)
 			return err
 		}
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			SendMeritEmail(sId)
+			wg.Done()
+		}(&wg)
 	}
+	wg.Wait()
 	return nil
 }
 
@@ -95,13 +103,30 @@ func (repo *MeritListRepository) GetUnListedCandidatesRequest(p *dto.GetUnListed
 		return nil, &dto.Error{Code: 500, Message: "Failed to get submissions"}
 	}
 
+	var admittedSubmissions []models.Submission
+
+	if err := db.Model(models.Submission{}).Where("is_admitted = ?", true).Find(&admittedSubmissions).Error; err != nil {
+		logrus.Error("Failed to get admitted submissions: ", err)
+		return nil, &dto.Error{Code: 500, Message: "Failed to get admitted submissions"}
+	}
+
 	// Filter the submissions
 	var filteredSubmissions []models.Submission
 	for _, submission := range submissions {
 		if submission.Application != nil {
-			filteredSubmissions = append(filteredSubmissions, submission)
+			isAdmitted := false
+			for _, admittedSubmission := range admittedSubmissions {
+				if admittedSubmission.ApplicationId == submission.ApplicationId {
+					isAdmitted = true
+					break
+				}
+			}
+			if !isAdmitted {
+				filteredSubmissions = append(filteredSubmissions, submission)
+			}
 		}
 	}
+
 	return &filteredSubmissions, nil
 }
 

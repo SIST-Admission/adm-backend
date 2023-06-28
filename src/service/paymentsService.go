@@ -220,6 +220,7 @@ func (paymentsService *PaymentsService) VerifyPayment(payload, signature string)
 			logrus.Error("Failed to update submission status: ", err)
 			return err
 		}
+		go repositories.SendSuccessfulAdmissionEmail(submissionId)
 	}
 
 	return nil

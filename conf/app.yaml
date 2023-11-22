@@ -2,7 +2,7 @@
 jwtSecret: "HelloSefali@2007"
 
 # Set the environment to use
-env: dev
+env: prod
 
 # Production environment properties
 prod:
@@ -18,7 +18,7 @@ prod:
     host: adm-db.postgres.database.azure.com
     port: 5432
     dbname: sistadm
-    user: sistadm_write
+    user: stoutnext
     password: Bhulgaya@2326
   
   razorpay:
@@ -55,18 +55,18 @@ dev:
 # Staging environment properties
 stage:
   server:
-    host: adm.stoutnext.com
+    host: sistadm.us
     basepath: ""
     port: 8080
   
   cors:
-    allowOrigin: "https://adm.stoutnext.com"
+    allowOrigin: "http://localhost:3000"
 
   db:
-    host: adm-db.postgres.database.azure.com
+    host: 157.245.17.155
     port: 5432
     dbname: sistadm
-    user: stoutnext
+    user: sistadm_write
     password: Bhulgaya@2326
 
   razorpay:

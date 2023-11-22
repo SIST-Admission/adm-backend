@@ -15,7 +15,7 @@ prod:
     allowOrigin: "https://adm.stoutnext.com"
 
   db:
-    host: 157.245.17.155
+    host: adm-db.postgres.database.azure.com
     port: 5432
     dbname: sistadm
     user: sistadm_write
@@ -55,18 +55,18 @@ dev:
 # Staging environment properties
 stage:
   server:
-    host: sistadm.us
+    host: adm.stoutnext.com
     basepath: ""
     port: 8080
   
   cors:
-    allowOrigin: "https://sistadm.us"
+    allowOrigin: "https://adm.stoutnext.com"
 
   db:
-    host: 157.245.17.155
+    host: adm-db.postgres.database.azure.com
     port: 5432
     dbname: sistadm
-    user: sistadm_write
+    user: stoutnext
     password: Bhulgaya@2326
 
   razorpay:

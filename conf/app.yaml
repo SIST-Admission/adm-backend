@@ -7,12 +7,12 @@ env: dev
 # Production environment properties
 prod:
   server:
-    host: sistadm.us
+    host: stoutnext.com
     basepath: ""
     port: 8080
   
   cors:
-    allowOrigin: "https://sistadm.us"
+    allowOrigin: "https://adm.stoutnext.com"
 
   db:
     host: 157.245.17.155

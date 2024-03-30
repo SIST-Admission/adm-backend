@@ -53,6 +53,7 @@ func (userController *UserController) LoginUser(c *gin.Context) {
 	// set HTTPOnly Secure Cookie
 	cookieHost := viper.GetString(viper.GetString("env") + "." + "client.host")
 	c.SetCookie("auth", resp.JwtToken, exp, "/", cookieHost, false, false)
+	c.SetSameSite(http.SameSiteNoneMode)
 
 	c.JSON(http.StatusOK, resp)
 }
@@ -61,6 +62,7 @@ func (userController *UserController) LogoutUser(c *gin.Context) {
 	logrus.Info("UserController.LogoutUser")
 	cookieHost := viper.GetString(viper.GetString("env") + "." + "client.host")
 	c.SetCookie("auth", "", -1, "/", cookieHost, false, false)
+	c.SetSameSite(http.SameSiteNoneMode)
 	c.JSON(http.StatusOK, gin.H{"message": "Logout Successful"})
 }
 

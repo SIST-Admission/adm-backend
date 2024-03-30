@@ -7,9 +7,12 @@ env: prod
 # Production environment properties
 prod:
   server:
-    host: localhost
+    host: backend.adm.stoutnext.com
     basepath: ""
     port: 8080
+  
+  client:
+    host: adm.stoutnext.com
   
   cors:
     allowOrigin: "http://localhost:3000"
@@ -31,9 +34,11 @@ prod:
 # Development environment properties
 dev:
   server:
-    host: localhost
+    host: backend.adm.stoutnext.com
     basepath: ""
     port: 8080
+  client:
+    host: localhost:3000
   
   cors:
     allowOrigin: "http://localhost:3000"

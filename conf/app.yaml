@@ -7,19 +7,19 @@ env: prod
 # Production environment properties
 prod:
   server:
-    host: stoutnext.com
+    host: localhost
     basepath: ""
     port: 8080
   
   cors:
-    allowOrigin: "https://adm.stoutnext.com"
+    allowOrigin: "http://localhost:3000"
 
   db:
-    host: adm-db.postgres.database.azure.com
+    host: 98.70.92.217
     port: 5432
     dbname: sistadm
-    user: stoutnext
-    password: Bhulgaya@2326
+    user: sistadm_write
+    password: Bhulgaya2326
   
   razorpay:
     key: rzp_test_mtawFMx1J5ch4R
@@ -39,11 +39,11 @@ dev:
     allowOrigin: "http://localhost:3000"
 
   db:
-    host: 157.245.17.155
+    host: 139.59.19.232
     port: 5432
     dbname: sistadm
     user: sistadm_write
-    password: Bhulgaya@2326
+    password: FAC06AA7-BAC2-4D37-9AE3-93F8C0F4C5C8
 
   razorpay:
     key: rzp_test_mtawFMx1J5ch4R
